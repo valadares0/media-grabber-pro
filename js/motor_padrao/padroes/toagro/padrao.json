@@ -1,0 +1,139 @@
+{
+  "versao_schema": 2,
+  "id": "toagro",
+  "nome": "Toagro Agronegócios",
+  "descricao": "Reels/Stories 9:16 talking head. Legenda Montserrat minúscula discreta, logo branca fixa embaixo, B-roll que prova o que é falado, animações sóbrias.",
+  "origem_assets": "Desktop\\CLENTES\\TOAGRO\\padrao_toagro\\assets",
+  "canvas": { "w": 1080, "h": 1920, "fps": 30 },
+  "fontes": {
+    "montserrat": { "arquivo": "assets/Montserrat-VF.ttf", "peso": 700 }
+  },
+  "cores": { "verde": "#02412A", "bordo": "#63211F", "verde_destaque": "#63AA5F", "branco": "#FFFFFF", "areia": "#F1EEE6", "preto": "#000000" },
+  "legenda": {
+    "ativa": true,
+    "fonte": "montserrat",
+    "peso": 700,
+    "tamanho_px": 55,
+    "cor": "#FFFFFF",
+    "caixa": "baixa",
+    "sem_pontuacao_final": true,
+    "ancora": "centro_bloco",
+    "centro_y": 1395,
+    "largura_max_px": 900,
+    "max_linhas": 2,
+    "palavras_por_bloco": { "min": 2, "max": 5 },
+    "max_caracteres": 30,
+    "entrada": { "tipo": "corte_seco" },
+    "palavra_ativa": { "modo": "nenhum" },
+    "sombra": { "cor": "#000000", "opacidade": 0.55, "dx": 0, "dy": 3, "desfoque": 6 },
+    "contorno": null,
+    "caixa_fundo": null,
+    "maiusculas_sempre": ["TOAGRO", "CORTEVA", "CAMPTA"]
+  },
+  "destaques": [
+    {
+      "id": "impacto",
+      "nome": "Palavra de impacto",
+      "quando": "conceito principal; 1 a 3 vezes por vídeo",
+      "gatilho": "palavra_chave",
+      "freq_por_video": { "min": 1, "max": 3 },
+      "posicao": "substitui_legenda",
+      "centro_y": 1395,
+      "fonte": "montserrat",
+      "peso": 700,
+      "tamanho_px": 74,
+      "cor": "#FFFFFF",
+      "caixa": "baixa",
+      "entrada": { "tipo": "corte_seco" },
+      "sincronia": "na_palavra",
+      "sombra": { "cor": "#000000", "opacidade": 0.55, "dx": 0, "dy": 3, "desfoque": 6 }
+    }
+  ],
+  "titulo_gancho": { "ativo": false },
+  "numeros": {
+    "ativo": true,
+    "posicao": "acima_da_cabeca",
+    "fonte": "montserrat",
+    "peso": 900,
+    "tamanho_px": 150,
+    "cor": "#FFFFFF",
+    "centro_y": 700,
+    "entrada": { "tipo": "sobe_fade", "dy": 40, "dur": 0.3 }
+  },
+  "logo": {
+    "ativo": true,
+    "arquivo": "assets/toagro_logo_branco.png",
+    "largura_px": 340,
+    "centro_x": 540,
+    "centro_y": 1580,
+    "durante": "video_todo",
+    "acima_do_broll": true
+  },
+  "elementos": {
+    "regra": "entra_na_fala_sai_no_corte",
+    "max_simultaneos": 2,
+    "entrada": { "tipo": "sobe_fade", "dy": 40, "dur": 0.3 },
+    "area": { "y0": 300, "y1": 1100 },
+    "fundo_cartao": { "tipo": "video_desfocado_escurecido", "desfoque_em_540px": 9, "escurecer_pct": 45, "raio_px": 26 },
+    "biblioteca": []
+  },
+  "broll": {
+    "ativo": true,
+    "pasta": "TOAGRO",
+    "modo": "tela_cheia",
+    "vertical_vai_para": "tela_cheia",
+    "duracao_s": { "min": 1.5, "max": 4.0 },
+    "cobertura_max_pct": 40,
+    "entra": "na_palavra",
+    "legenda_continua": true,
+    "zoom_lento": { "de": 1.0, "ate": 1.1 },
+    "tipos": ["detalhe de marca/produto", "veículo com logo", "aperto de mão", "mão na planta/semente", "lavoura aberta", "tela com mapa", "planilha/sistema", "caminhada no armazém", "aéreo da estrutura", "equipe na loja", "técnico no campo"],
+    "conferir": ["texto_queimado", "marca_dagua"],
+    "ia_gerada_permitida": false
+  },
+  "camera": { "zoom": { "modo": "nenhum", "niveis": [1.0], "intervalo_min_s": 2.5, "lento": null }, "enquadrar_rosto": true },
+  "ritmo": {
+    "novidade_a_cada_s": { "min": 2, "max": 4 },
+    "cortar_pausas_acima_s": 0.25,
+    "duracao_alvo_s": { "min": 15, "max": 45 },
+    "gancho_max_s": 3,
+    "cortar": ["oi", "então", "respiração", "é..."],
+    "estrutura": ["abertura", "fala + prova (B-roll)", "parceria/equipe", "chamada", "assinatura preta"]
+  },
+  "transicoes": { "padrao": "corte_seco", "flash": { "cor": "#FFFFFF", "quadros": 2, "max_por_video": 0 }, "dissolve_s": 0.3 },
+  "fechamento": {
+    "ativo": true,
+    "tipo": "cartela",
+    "fundo": "#000000",
+    "logo": "assets/toagro_logo_branco.png",
+    "largura_px": 486,
+    "centro_y": 960,
+    "duracao_s": 1.5,
+    "entrada": { "tipo": "corte_seco" }
+  },
+  "audio": {
+    "lufs": -14,
+    "voz_limpa": true,
+    "musica": { "ativa": true, "arquivo": null, "estilo": "corporativa", "volume_db_sob_voz": -15, "sobe_no_fim": true },
+    "sfx": {}
+  },
+  "motions_permitidos": ["corte_seco", "sobe_fade", "fade", "dissolve", "sai_no_corte", "zoom_lento"],
+  "motions_proibidos": ["brilho", "neon", "glitch", "3d", "grão", "aberração cromática", "boil", "palavra a palavra", "emoji"],
+  "checklist": [
+    "Legenda minúscula 55 px y≈1395, sem ponto final, sem palavra pulando",
+    "Logo branca 340 px y≈1580 o vídeo todo, inclusive no B-roll",
+    "B-roll mostra exatamente o que é falado naquele segundo",
+    "Fechamento preto com logo branca 1–2 s",
+    "Nada de texto nas zonas da UI do Instagram",
+    "Dizer: áudio não ouvido"
+  ],
+  "correcoes": [],
+  "proveniencia": {
+    "legenda.tamanho_px": "TREINAMENTO_VISUAL_TOAGRO.pdf p.5-7",
+    "logo.centro_y": "pdf p.3 (y 1550–1610)"
+  },
+  "pendencias": [
+    "Arquivo da música corporativa.",
+    "numeros.tamanho_px/centro_y são estimativas (PDF p.15 só diz 'Montserrat Black')."
+  ]
+}

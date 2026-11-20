@@ -1,0 +1,176 @@
+{
+  "versao_schema": 2,
+  "id": "marca_motors",
+  "nome": "Marca Motors | Mitsubishi",
+  "descricao": "Concessionária. Reels/Stories 9:16 com apresentadora + carros. Legenda Cal Sans minúscula em máquina de escrever, linha vermelha, selos PNG presos na fala, cortes na batida.",
+  "origem_assets": "Desktop\\CLENTES\\Marca Motors\\padrao_marca\\assets e ARQUIVOS MARCA",
+  "canvas": { "w": 1080, "h": 1920, "fps": 30 },
+  "fontes": {
+    "calsans": { "arquivo": "assets/CalSans-Regular.ttf", "peso": 600 }
+  },
+  "cores": { "vermelho": "#E20413", "preto": "#0E0E10", "branco": "#FFFFFF", "prata": "#C9CBCE", "laranja_preco": "#C8853A", "dourado_selo": "#B08A3E" },
+  "legenda": {
+    "ativa": true,
+    "fonte": "calsans",
+    "peso": 600,
+    "tamanho_px": 82,
+    "cor": "#FFFFFF",
+    "caixa": "baixa",
+    "sem_pontuacao_final": true,
+    "ancora": "centro_primeira_linha",
+    "centro_y": 1436,
+    "largura_max_px": 900,
+    "max_linhas": 2,
+    "palavras_por_bloco": { "min": 2, "max": 5 },
+    "max_caracteres": 30,
+    "entrada": { "tipo": "maquina_escrever", "dur": 0.3 },
+    "palavra_ativa": { "modo": "nenhum" },
+    "sombra": { "cor": "#000000", "opacidade": 0.6, "dx": 3, "dy": 4, "desfoque": 2 },
+    "contorno": null,
+    "caixa_fundo": null,
+    "maiusculas_sempre": ["Marca Motors", "Mitsubishi", "Triton", "Eclipse Cross", "Outlander", "PCD", "FIPE"]
+  },
+  "destaques": [
+    {
+      "id": "linha_vermelha",
+      "nome": "Linha vermelha embaixo da branca (\"branca|Vermelha\")",
+      "quando": "nome do carro / conceito que vende, logo depois da branca",
+      "gatilho": "palavra_chave",
+      "posicao": "linha_abaixo_da_legenda",
+      "centro_y": 1528,
+      "fonte": "calsans",
+      "peso": 600,
+      "tamanho_px": 100,
+      "cor": "#E20413",
+      "caixa": "original",
+      "entrada": { "tipo": "maquina_escrever", "dur": 0.3 },
+      "sincronia": "depois_da_branca",
+      "sombra": { "cor": "#000000", "opacidade": 0.6, "dx": 3, "dy": 4, "desfoque": 2 }
+    },
+    {
+      "id": "impacto",
+      "nome": "Palavra vermelha sozinha (*OPORTUNIDADE)",
+      "quando": "o conceito que vende; 1 a 3 vezes por vídeo",
+      "gatilho": "palavra_chave",
+      "freq_por_video": { "min": 1, "max": 3 },
+      "posicao": "substitui_legenda",
+      "centro_y": 1436,
+      "fonte": "calsans",
+      "peso": 600,
+      "tamanho_px": 100,
+      "cor": "#E20413",
+      "caixa": "alta",
+      "entrada": { "tipo": "maquina_escrever", "dur": 0.3 },
+      "sincronia": "na_palavra"
+    }
+  ],
+  "titulo_gancho": { "ativo": false },
+  "numeros": {
+    "ativo": true,
+    "posicao": "substitui_legenda",
+    "fonte": "calsans",
+    "peso": 600,
+    "tamanho_px": 220,
+    "cor": "#FFFFFF",
+    "centro_y": 1400,
+    "entrada": { "tipo": "slam", "de": 1.6, "blur": 8, "dur": 0.4 },
+    "texto_apoio": { "entrada": { "tipo": "fade", "dur": 0.2 }, "lado": "esquerda" }
+  },
+  "logo": {
+    "ativo": true,
+    "arquivo": "assets/logo_duplo.png",
+    "largura_px": 400,
+    "centro_x": 540,
+    "centro_y": 282,
+    "durante": "video_todo",
+    "acima_do_broll": true
+  },
+  "elementos": {
+    "regra": "entra_na_fala_sai_no_corte",
+    "max_simultaneos": 2,
+    "entrada": { "tipo": "pop_rebote", "de": 0.7, "pico": 1.08, "dur": 0.3, "giro": -6 },
+    "posicoes": {
+      "zona_legenda": { "centro_y": 1470, "esconde_legenda": true },
+      "abaixo_da_legenda": { "centro_y": 1620, "esconde_legenda": false }
+    },
+    "biblioteca": [
+      {
+        "id": "supervalorizacao_usado",
+        "arquivo": "ARQUIVOS MARCA/Supervalorização usado.png",
+        "gatilhos": ["super valorização", "supervalorização", "seu usado"],
+        "largura_px": 700,
+        "centro_x": 540,
+        "centro_y": 1470,
+        "esconde_legenda": true
+      }
+    ],
+    "hold": "preço que continua sobre vários B-rolls: hold=true + t1"
+  },
+  "broll": {
+    "ativo": true,
+    "pasta": "ARQUIVOS MARCA",
+    "modo": "tela_cheia",
+    "vertical_vai_para": "tela_cheia",
+    "duracao_s": { "min": 1.5, "max": 2.5 },
+    "cortes_na_batida": true,
+    "sequencia": "4 a 6 cortes seguidos na batida",
+    "cobertura_max_pct": 60,
+    "entra": "na_palavra",
+    "legenda_continua": true,
+    "nao_junto_com": [],
+    "conferir": ["tarja_preta", "texto_queimado"],
+    "aviso_ilustrativo": { "texto": "Imagens ilustrativas", "quando": "cena de fábrica Mitsubishi (250220_MIT_*, Video_de_features*, cenas 01/02 Eclipse)" },
+    "ia_gerada_permitida": false
+  },
+  "camera": { "zoom": { "modo": "nenhum", "niveis": [1.0], "intervalo_min_s": 2.5, "lento": null }, "enquadrar_rosto": true },
+  "ritmo": {
+    "novidade_a_cada_s": { "min": 1.5, "max": 5 },
+    "cortar_pausas_acima_s": 0.2,
+    "duracao_alvo_s": { "min": 18, "max": 35 },
+    "estrutura": ["gancho (apresentadora falando frase forte)", "carro (B-roll do que ela fala)", "oferta/prova (preço, selo)", "chamada", "assinatura preta"],
+    "funil_pelo_nome": { "topo": "modelo e para quem é", "meio": "detalhes/benefícios", "fundo": "oferta, preço, prazo, CTA forte" }
+  },
+  "transicoes": { "padrao": "corte_seco", "flash": { "cor": "#FFFFFF", "quadros": 2, "max_por_video": 0 }, "dissolve_s": 0 },
+  "fechamento": {
+    "ativo": true,
+    "tipo": "cartela",
+    "fundo": "#000000",
+    "logo": "assets/logo_duplo.png",
+    "largura_px": 655,
+    "centro_y": 960,
+    "duracao_s": 1.8,
+    "entrada": { "tipo": "fade", "dur": 0.4 },
+    "musica_termina_junto": true
+  },
+  "audio": {
+    "lufs": -14,
+    "voz_limpa": true,
+    "musica": { "ativa": true, "arquivo": null, "estilo": "eletrônica/sport 125–145 BPM, grave forte (não é rock)", "volume": 0.12, "sobe_no_fim": true, "fade_saida_s": 1.0 },
+    "sfx": {}
+  },
+  "formatos_derivados": [
+    { "nome": "horizontal", "w": 1920, "h": 1080, "logo": { "canto": "superior_direito", "largura_pct": 10 }, "legenda": { "centro_y_pct": 74, "escala": 0.8 } },
+    { "nome": "quadrado", "w": 1080, "h": 1080, "logo": { "canto": "superior_direito", "largura_pct": 10 }, "legenda": { "centro_y_pct": 74, "escala": 0.8 } }
+  ],
+  "motions_permitidos": ["corte_seco", "maquina_escrever", "pop_rebote", "slam", "fade", "sai_no_corte"],
+  "motions_proibidos": ["glitch", "brilho", "neon", "3d", "tremida", "palavra a palavra"],
+  "checklist": [
+    "Logo duplo 400 px no topo (y 282) o vídeo todo",
+    "Legenda minúscula; maiúscula só nos nomes (Mitsubishi, Triton...)",
+    "Elemento entra quando ela fala o assunto e sai no corte",
+    "Preço/condição confirmados com o usuário",
+    "Cena de fábrica com 'Imagens ilustrativas'",
+    "Fechamento preto, logo 655 px, fade 0,4 s",
+    "Dizer: áudio não ouvido"
+  ],
+  "correcoes": [],
+  "proveniencia": {
+    "legenda.tamanho_px": "TREINAMENTO_VISUAL_MARCA.pdf p.5-6",
+    "legenda.centro_y": "pdf p.5-6 (centro da 1ª linha)",
+    "logo.centro_y": "pdf p.3"
+  },
+  "pendencias": [
+    "Arquivo da trilha eletrônica (audio.musica.arquivo).",
+    "Medir tamanho do número gigante (numeros.tamanho_px = 220 é estimativa)."
+  ]
+}

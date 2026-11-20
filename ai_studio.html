@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Cortes Virais IA — Media Grabber Pro</title>
+  <link rel="stylesheet" href="css/ai_studio.css" />
+</head>
+<body>
+  <header class="top">
+    <div class="brand">⚡ <b>Cortes Virais</b> <span class="tag">IA</span></div>
+    <div class="top-actions">
+      <span id="engineStatus" class="pill">Motor: verificando...</span>
+      <button id="updateEngineBtn" class="ghost" title="Atualiza o yt-dlp quando o YouTube muda as proteções">🔄 Atualizar motor</button>
+      <button id="openFolderBtn" class="ghost">📁 Pasta</button>
+      <button id="settingsBtn" class="ghost">⚙️ Gemini</button>
+    </div>
+  </header>
+
+  <section id="apiUsageBar" class="usage-bar">
+    <div class="usage-top">
+      <span id="usageLabel">📊 Consumo API Gemini hoje: carregando...</span>
+      <span id="usageCost" class="muted"></span>
+    </div>
+    <div class="bar"><div id="usageFill"></div></div>
+  </section>
+
+  <section id="settings" class="card hidden">
+    <h3>Conexão com Gemini</h3>
+    <p class="muted">Pegue uma chave grátis em <a href="https://aistudio.google.com/apikey" target="_blank">aistudio.google.com/apikey</a>. Ela fica salva só no seu PC. Sem chave, uso uma análise local simplificada.</p>
+    <div class="row">
+      <input id="apiKeyInput" type="password" placeholder="Cole sua chave Gemini (AIza...)" />
+      <input id="modelInput" type="text" placeholder="Modelo (padrão: gemini-3-flash-preview)" />
+      <button id="saveKeyBtn" class="primary">Salvar</button>
+    </div>
+    <p id="keyStatus" class="muted"></p>
+  </section>
+
+  <!-- 1) PRESETS & CLIENTES: VISÍVEL ANTES DE ESCANEAR -->
+  <section id="renderDefaults" class="card">
+    <div class="presets-head">
+      <div class="presets-title-block">
+        <div class="presets-title-row">
+          <span class="presets-main-title">🎨 <b>Padrão & Presets de Edição</b></span>
+          <span id="activePresetBadge" class="pill ok">Ativo: Tibapa (Pregação)</span>
+        </div>
+        <p class="muted" style="margin:4px 0 0;font-size:12px">Escolha o estilo de corte, legenda e ritmo <b>antes</b> de analisar o vídeo. A IA usará este padrão para identificar os melhores trechos e aplicar o visual correto:</p>
+      </div>
+      <div class="presets-actions">
+        <button id="newClientBtn" class="primary" style="font-size:13px;padding:7px 12px">➕ Novo Cliente (PDF / Links)</button>
+      </div>
+    </div>
+
+    <!-- BOX DE IMPORTAÇÃO DE CLIENTE (PDF / LINKS PINTEREST) -->
+    <div id="clientImportBox" class="card hidden" style="background:#0d1322;border:1px solid var(--acc);margin:12px 0 16px">
+      <h4 style="margin:0 0 8px">✨ Criar Padrão de Novo Cliente (via PDF de Brand ou Links do Pinterest / Reels)</h4>
+      <p class="muted" style="margin:0 0 10px;font-size:12px">O motor extrairá automaticamente o padrão tipográfico, cores, pausas e cadência para salvar na sua biblioteca:</p>
+      <div class="row" style="margin-bottom:8px">
+        <input id="clientNameInput" type="text" placeholder="Nome do cliente (ex: Tibapa, Pastor Marcos, etc.)" style="min-width:240px" />
+        <label class="ghost file-btn" style="padding:8px 12px;font-size:12px;cursor:pointer">
+          📄 Subir PDF do Cliente
+          <input id="clientPdfInput" type="file" accept="application/pdf" style="display:none" />
+        </label>
+        <span id="pdfFileName" class="muted" style="font-size:12px"></span>
+      </div>
+      <textarea id="clientRefsInput" rows="2" placeholder="Cole aqui 1 a 3 links de referência (Pinterest, Shorts, Reels, TikTok) — um por linha..."></textarea>
+      <div class="row" style="margin-top:8px">
+        <input id="clientNotesInput" type="text" placeholder="Observações extras (ex: fonte serifada, destacar palavras de Deus em dourado, sem cortes bruscos...)" style="flex:1" />
+        <button id="importClientBtn" class="primary">⚡ Extrair e Salvar Padrão</button>
+      </div>
+      <div id="clientImportStatus" class="muted" style="margin-top:6px;font-size:12px"></div>
+    </div>
+
+    <!-- GRADE DE PADRÕES v2 (CARREGADA DINAMICAMENTE DO MOTOR) -->
+    <div id="presetsBar" class="presets-bar">
+      <div class="muted" style="padding:10px;font-size:12px">Carregando padrões do motor v2...</div>
+    </div>
+
+    <!-- AJUSTES RÁPIDOS DA EDIÇÃO -->
+    <div class="row opts" style="border-top:1px solid var(--line);padding-top:12px;margin-top:10px">
+      <label>Formato
+        <select id="optFormat"><option value="vertical">9:16 Vertical (Shorts/Reels/TikTok)</option><option value="original">16:9 Original</option></select>
+      </label>
+      <label>Layout
+        <select id="optLayout"><option value="crop">Tela cheia (pessoa centralizada)</option><option value="blur">Vídeo inteiro + fundo desfocado</option></select>
+      </label>
+      <label>Legenda
+        <select id="optStyle"><option value="encaixa">Encaixa (Cinética B2B)</option><option value="tibapa">Sermão / Pregação (Tibapa)</option><option value="hormozi">Amarela (Hormozi)</option><option value="mrbeast">Verde Hype (MrBeast)</option><option value="clean">Limpa</option><option value="none">Sem legenda</option></select>
+      </label>
+      <label title="Trilha sonora instrumental inteligente misturada no fundo no volume perfeito para a voz ficar cristalina">🎵 Trilha Instrumental
+        <select id="optMusic">
+          <option value="auto">🤖 IA Automática (pelo tema do corte)</option>
+          <option value="calm">🕊️ Calma / Reflexiva (Sermão/Piano)</option>
+          <option value="epic">⚔️ Épica / Inspiradora</option>
+          <option value="hype">🔥 Animada / Hype</option>
+          <option value="tense">⚡ Tensão / Alerta</option>
+          <option value="none">Sem música de fundo</option>
+        </select>
+      </label>
+      <label title="Corta silêncios maiores que 0.35s para acelerar a fala"><input id="optTrimSilences" type="checkbox" /> ✂️ Tirar respiros/pausas</label>
+      <label title="Identifica o orador e move a janela de 9:16 para mantê-lo centralizado"><input id="optCenterPerson" type="checkbox" checked /> 🎯 Centralizar pessoa</label>
+      <label title="Pequenos impulsos de zoom nas palavras-chave"><input id="optDynamic" type="checkbox" /> Zoom dinâmico</label>
+      <label title="Insere manchete no topo durante os primeiros 3 segundos"><input id="optHook" type="checkbox" /> Texto-gancho</label>
+      <button id="renderTopBtn" class="primary hidden">🎬 Gerar Top 3</button>
+    </div>
+  </section>
+
+  <!-- 2) ÁREA DE ANÁLISE / URL DO VÍDEO -->
+  <section class="card" id="analyzeCard">
+    <div class="row">
+      <input id="urlInput" type="text" placeholder="Cole o link do vídeo / live (YouTube, Twitch, Instagram...)" />
+      <button id="analyzeBtn" class="primary big">⚡ Analisar com IA</button>
+    </div>
+    <div class="row opts">
+      <label title="A IA usa isso como média — pode fazer menor ou maior para fechar o raciocínio">Duração média (flexível) <input id="minLen" type="number" value="25" min="5" max="180" />–<input id="maxLen" type="number" value="60" min="10" max="180" /> s</label>
+      <label>Qtd. cortes <input id="count" type="number" value="8" min="1" max="20" /></label>
+      <input id="focus" type="text" placeholder="Foco opcional (ex: momentos de fé, revelação bíblica, dinheiro...)" />
+    </div>
+    <div id="analyzeProgress" class="progress hidden"><div class="bar"><div id="analyzeFill"></div></div><span id="analyzeText"></span></div>
+    <div id="fixingBanner" class="fixing-banner hidden">
+      <div class="fixing-head">
+        <span class="fixing-icon">🟡</span>
+        <span id="fixingText">Estou corrigindo, aguarde...</span>
+      </div>
+      <div class="fixing-bar"><div class="fixing-fill"></div></div>
+    </div>
+  </section>
+
+  <section id="videoMeta" class="meta hidden"></section>
+
+  <main id="clips" class="clips"></main>
+
+  <section class="card">
+    <h3>Histórico de Cortes Gerados</h3>
+    <div id="history" class="history muted">Nenhum corte gerado ainda.</div>
+  </section>
+
+  <!-- MODAL DE PRÉVIA DE PRESET -->
+  <div id="presetPreviewModal" class="preset-modal hidden">
+    <div class="preset-modal-overlay"></div>
+    <div class="preset-modal-content">
+      <div class="preset-modal-head">
+        <div class="preset-modal-title">
+          <h3 id="modalPresetName" style="margin:0">Prévia do Preset</h3>
+          <span id="modalPresetBadge" class="pill ok">Visualização Real</span>
+        </div>
+        <button id="closePresetModalBtn" class="ghost" style="padding:4px 10px;font-size:16px">✕</button>
+      </div>
+
+      <div class="preset-modal-body">
+        <div class="preset-modal-frame-col">
+          <div class="preset-modal-image-wrap">
+            <img id="modalPresetImg" src="" alt="Prévia visual do preset" />
+            <div id="modalPresetOverlay" class="preset-modal-live-tag">Renderização Real</div>
+          </div>
+        </div>
+
+        <div class="preset-modal-specs-col">
+          <p id="modalPresetDesc" class="muted" style="margin:0 0 14px;font-size:13px"></p>
+
+          <div class="specs-grid">
+            <div class="spec-item">
+              <span class="spec-label">📝 Tipografia & Fonte</span>
+              <span id="specFont" class="spec-val">-</span>
+            </div>
+            <div class="spec-item">
+              <span class="spec-label">🎨 Cores & Destaque</span>
+              <div id="specColors" class="spec-color-pills">-</div>
+            </div>
+            <div class="spec-item">
+              <span class="spec-label">📐 Posição na Tela</span>
+              <span id="specPosition" class="spec-val">-</span>
+            </div>
+            <div class="spec-item">
+              <span class="spec-label">⚡ Dinâmica & Palavras</span>
+              <span id="specPacing" class="spec-val">-</span>
+            </div>
+            <div class="spec-item">
+              <span class="spec-label">✂️ Tratamento de Pausas</span>
+              <span id="specSilences" class="spec-val">-</span>
+            </div>
+            <div class="spec-item">
+              <span class="spec-label">💡 Recomendado Para</span>
+              <span id="specUseFor" class="spec-val">-</span>
+            </div>
+          </div>
+
+          <div style="margin-top:20px;display:flex;gap:10px">
+            <button id="modalSelectPresetBtn" class="primary big" style="flex:1">✅ Usar Este Padrão</button>
+            <button id="modalCloseBtn" class="ghost">Fechar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <template id="clipTpl">
+    <article class="clip">
+      <div class="preview-col">
+        <div class="preview"></div>
+        <div class="preview-caption hidden"></div>
+      </div>
+      <div class="info">
+        <div class="head">
+          <span class="score"></span>
+          <h4 class="title"></h4>
+        </div>
+        <p class="hook"></p>
+        <p class="reason muted"></p>
+        <div class="subscores"></div>
+        <div class="times">
+          <label>Início <input class="t-start" type="text" /></label>
+          <label>Fim <input class="t-end" type="text" /></label>
+          <span class="len muted"></span>
+        </div>
+        <details><summary>Transcrição & legenda do post</summary><p class="transcript muted"></p><textarea class="caption" rows="3"></textarea></details>
+        <div class="actions">
+          <button class="ghost act-preview">👁️ Pré-visualizar Corte</button>
+          <button class="primary act-mp4">✨ Confirmar e Editar (MP4)</button>
+          <button class="ghost act-gif">GIF</button>
+          <button class="ghost act-mp3">MP3</button>
+          <button class="ghost act-copy">📋 Copiar legenda</button>
+        </div>
+        <div class="progress hidden"><div class="bar"><div class="fill"></div></div><span class="ptext"></span></div>
+      </div>
+    </article>
+  </template>
+
+  <script src="js/ai_studio.js"></script>
+</body>
+</html>

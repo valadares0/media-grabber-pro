@@ -1,0 +1,206 @@
+{
+  "versao_schema": 2,
+  "id": "daniel_gaia",
+  "nome": "Daniel Gaia Assessoria Pecuária",
+  "descricao": "Reels 9:16, zootecnista falando para a câmera na fazenda. Legenda caixa alta, palavra-chave em itálico dourado, título-gancho no topo, B-roll de gado no terço de cima.",
+  "origem_assets": "Desktop\\CLENTES\\DANIEL GAIA\\padrao_gaia\\assets (copiar para ./assets)",
+  "canvas": { "w": 1080, "h": 1920, "fps": 30 },
+  "fontes": {
+    "montserrat": { "arquivo": "assets/Montserrat-VF.ttf", "peso": 800 },
+    "playfair_italico": { "arquivo": "assets/PlayfairDisplay-Italic[wght].ttf", "peso": 400, "italico": true }
+  },
+  "cores": { "branco": "#FFFFFF", "dourado": "#EBCE1D", "fechamento": "#FFFFFF" },
+  "legenda": {
+    "ativa": true,
+    "fonte": "montserrat",
+    "peso": 800,
+    "tamanho_px": 60,
+    "cor": "#FFFFFF",
+    "caixa": "alta",
+    "ancora": "centro_bloco",
+    "centro_y": 1497,
+    "largura_max_px": 900,
+    "max_linhas": 2,
+    "palavras_por_bloco": { "min": 2, "max": 4 },
+    "max_caracteres": 26,
+    "entrada": { "tipo": "corte_seco" },
+    "palavra_ativa": { "modo": "nenhum" },
+    "sombra": { "cor": "#000000", "opacidade": 0.6, "dx": 3, "dy": 4, "desfoque": 2 },
+    "contorno": null,
+    "manter_fala_original": true,
+    "nao_repetir_destaque": true
+  },
+  "destaques": [
+    {
+      "id": "dourado",
+      "nome": "Palavra dourada (BRANCA|dourada)",
+      "quando": "palavra-chave da frase; 3 a 6 vezes por vídeo",
+      "gatilho": "palavra_chave",
+      "freq_por_video": { "min": 3, "max": 6 },
+      "posicao": "linha_abaixo_da_legenda",
+      "espaco_px": 8,
+      "fonte": "playfair_italico",
+      "peso": 400,
+      "tamanho_px": 66,
+      "cor": "#EBCE1D",
+      "caixa": "baixa",
+      "entrada": { "tipo": "corte_seco" },
+      "sincronia": "na_palavra",
+      "sombra": { "cor": "#000000", "opacidade": 0.6, "dx": 3, "dy": 4, "desfoque": 2 }
+    }
+  ],
+  "titulo_gancho": {
+    "ativo": true,
+    "quando": "gancho no início; virada de assunto; volta no fim como chamada",
+    "fonte": "montserrat",
+    "peso": 800,
+    "tamanho_px": 112,
+    "cor": "#FFFFFF",
+    "caixa": "alta",
+    "centro_y": 470,
+    "linha2": { "fonte": "playfair_italico", "peso": 400, "tamanho_px": 96, "cor": "#EBCE1D", "caixa": "baixa", "sincronia": "na_palavra" },
+    "entrada": { "tipo": "desfoque_foco", "blur": 12, "dur": 0.3 },
+    "duracao_s": { "min": 2, "max": 6 },
+    "repete_no_fim": true,
+    "brilho": true
+  },
+  "numeros": {
+    "ativo": true,
+    "posicao": "substitui_legenda",
+    "fonte": "montserrat",
+    "peso": 800,
+    "tamanho_px": 110,
+    "cor": "#FFFFFF",
+    "centro_y": 1460,
+    "linha2": { "fonte": "playfair_italico", "peso": 400, "tamanho_px": 80, "cor": "#EBCE1D", "caixa": "baixa" },
+    "entrada": { "tipo": "corte_seco" }
+  },
+  "logo": {
+    "ativo": true,
+    "arquivo": "assets/logo_duplo_branco.png",
+    "tela_cheia": true,
+    "largura_px": 1080,
+    "centro_x": 540,
+    "centro_y": 960,
+    "faixa_visivel_y": [155, 286],
+    "durante": "video_todo",
+    "acima_do_broll": true,
+    "variantes": { "eb_leiloes": "assets/logo_duplo_eb_leiloes.png" },
+    "regra_variante": "logo do topo segue a marca citada no vídeo (falou EB Leilões -> variante eb_leiloes)"
+  },
+  "elementos": {
+    "regra": "entra_na_fala_sai_no_corte",
+    "max_simultaneos": 2,
+    "entrada": { "tipo": "corte_seco" },
+    "biblioteca": [
+      {
+        "id": "logo_falado_eb",
+        "arquivo": "assets/eb_leiloes_branco.png",
+        "gatilhos": ["eb leilões", "eb leiloes"],
+        "largura_px": 594,
+        "centro_x": 540,
+        "centro_y": 1524,
+        "esconde_legenda": true
+      }
+    ]
+  },
+  "broll": {
+    "ativo": true,
+    "pasta": "GAIA ARQUIVOS",
+    "catalogo": "padrao_gaia/broll_catalogo/catalogo.json",
+    "usados": "padrao_gaia/broll_usados.json",
+    "modo": "faixa_topo_ou_tela_cheia",
+    "faixa": { "y0": 0, "y1": 760, "esfumado_px": 90, "atras_do_logo": true },
+    "vertical_vai_para": "tela_cheia",
+    "tela_cheia_quando": ["clipe vertical", "boi gordo + número"],
+    "duracao_s": { "min": 2.5, "max": 4.0 },
+    "cobertura_max_pct": 40,
+    "intervalo_min_s": 0.5,
+    "entra": "na_palavra",
+    "legenda_continua": true,
+    "nao_junto_com": ["titulo_gancho"],
+    "nao_repetir_entre_videos": true,
+    "ordem": "mesmo assunto da fala e na ordem da história",
+    "conferir": ["texto_queimado", "marca_dagua", "pessoa_cortada", "cartaz_de_outra_empresa"],
+    "nao_por_em_cima_da_camera_2": true,
+    "ia_gerada_permitida": false
+  },
+  "camera": {
+    "zoom": {
+      "modo": "no_corte_alternado",
+      "niveis": [1.0, 1.2],
+      "intervalo_min_s": 2.5,
+      "lento": { "de": 1.0, "ate": 1.26, "dur": 3.5, "max_por_video": 3, "abertura": { "de": 1.07, "ate": 1.41 } }
+    },
+    "enquadrar_rosto": true
+  },
+  "ritmo": {
+    "novidade_a_cada_s": { "min": 4, "max": 6 },
+    "cortar_pausas_acima_s": 0.14,
+    "duracao_alvo_s": { "min": 45, "max": 60 },
+    "gancho_max_s": 3,
+    "repeticoes": "ficar com a última tentativa completa"
+  },
+  "transicoes": {
+    "padrao": "corte_seco",
+    "flash": { "cor": "#FFFFFF", "quadros": 2, "max_por_video": 2, "quando": "troca de assunto" },
+    "dissolve_s": 0.2
+  },
+  "fechamento": {
+    "ativo": true,
+    "tipo": "cartela",
+    "fundo": "#FFFFFF",
+    "logo": "assets/logo_final_cor.png",
+    "largura_px": 820,
+    "centro_y": 960,
+    "duracao_s": 2.4,
+    "animacao": { "tipo": "zoom_lento", "de": 1.0, "ate": 1.05 }
+  },
+  "audio": {
+    "lufs": -15,
+    "voz_limpa": true,
+    "musica": { "ativa": true, "arquivo": "assets/trilha_gaia_01.wav", "volume": 0.08, "sobe_no_fim": true, "fade_saida_s": 1.5 },
+    "sfx": {
+      "woosh": { "volume": 0.28 },
+      "title_swoosh": { "volume": 0.38 },
+      "woosh_motion": { "volume": 0.60 },
+      "ding": { "volume": 0.32 }
+    }
+  },
+  "motions_permitidos": ["corte_seco", "desfoque_foco", "sai_no_corte", "zoom_no_corte", "zoom_lento", "flash", "dissolve", "fade"],
+  "motions_proibidos": ["glitch", "neon", "tremida"],
+  "checklist": [
+    "Logo duplo no topo o vídeo todo (variante certa da marca citada)",
+    "Legenda caixa alta y≈1497 sem erro de acento (conferido no quadro)",
+    "Dourada entra só quando ele FALA a palavra",
+    "Destaque não se repete na legenda de baixo",
+    "B-roll ≥ 2,5 s, no topo atrás do logo, sem texto/marca d'água queimados, sem repetir cena de outro vídeo",
+    "Zoom só junto com corte, nunca menos de 2,5 s entre trocas",
+    "Fechamento branco com logos coloridos ≈ 2,4 s",
+    "Dizer ao usuário: áudio não ouvido; números/valores a confirmar"
+  ],
+  "correcoes": [
+    { "data": "2026-11-09", "origem": "usuário", "regra": "Dourada só entra quando ele fala a palavra; a branca entra no começo da frase." },
+    { "data": "2026-11-09", "origem": "usuário", "regra": "Não repetir cena de apoio entre vídeos (broll_usados.json)." },
+    { "data": "2026-11-12", "origem": "editor - Ciclo pecuário", "regra": "B-roll mínimo 2,5 s", "campo": "broll.duracao_s.min", "valor": 2.5 },
+    { "data": "2026-11-12", "origem": "editor - Ciclo pecuário", "regra": "Cortar pausas a partir de 0,14 s", "campo": "ritmo.cortar_pausas_acima_s", "valor": 0.14 },
+    { "data": "2026-11-12", "origem": "editor - Ciclo pecuário", "regra": "B-roll começa no topo (y 0) e desce até ≈ 760, atrás dos logos", "campo": "broll.faixa.y1", "valor": 760 },
+    { "data": "2026-11-12", "origem": "editor - Ciclo pecuário", "regra": "Final em -15 LUFS", "campo": "audio.lufs", "valor": -15 },
+    { "data": "2026-11-12", "origem": "editor - Ciclo pecuário", "regra": "Música 0,08", "campo": "audio.musica.volume", "valor": 0.08 },
+    { "data": "2026-11-12", "origem": "editor - Ciclo pecuário", "regra": "Zoom troca junto com o corte, alternando 1,0 e 1,20; nunca menos de 2,5 s", "campo": "camera.zoom.intervalo_min_s", "valor": 2.5 },
+    { "data": "2026-11-12", "origem": "usuário", "regra": "Se a frase já está no destaque (branca + dourada), não entra de novo na legenda de baixo." },
+    { "data": "2026-11-12", "origem": "usuário", "regra": "Clipe vertical vai em tela cheia (2,5–2,6 s), nunca recortado na faixa do topo." }
+  ],
+  "proveniencia": {
+    "legenda.tamanho_px": "TREINAMENTO_VISUAL_GAIA.pdf p.5-6 (medida PIL em 1080x1920)",
+    "legenda.centro_y": "TREINAMENTO_VISUAL_GAIA.pdf p.5-6",
+    "titulo_gancho.centro_y": "pdf p.7 / gaia_edit.py TITLE_Y",
+    "fechamento.largura_px": "gaia_edit.py END_W"
+  },
+  "pendencias": [
+    "Medir o tamanho da linha dourada (destaques.dourado.tamanho_px = 66 é estimativa).",
+    "Medir o tamanho do número grande (numeros.tamanho_px = 110 é estimativa).",
+    "Fonte variável: confirmar que o ffmpeg do PC acha a instância 'Montserrat ExtraBold' (cartela_teste.js) ou trocar por Montserrat-ExtraBold.ttf estática.",
+    "Criar assets/logo_duplo_eb_leiloes.png (variante do topo quando ele fala EB Leilões)."
+  ]
+}

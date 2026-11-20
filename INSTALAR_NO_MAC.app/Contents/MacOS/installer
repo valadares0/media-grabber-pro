@@ -1,0 +1,10 @@
+#!/bin/bash
+# Localiza a pasta raiz da extensão (dois níveis acima do Contents)
+APP_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )/../../.." &> /dev/null && pwd )"
+if [ -f "$APP_DIR/INSTALAR_NO_MAC.command" ]; then
+    open -a Terminal "$APP_DIR/INSTALAR_NO_MAC.command"
+else
+    # Fallback se executado de outro lugar
+    DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )/../.." &> /dev/null && pwd )"
+    open -a Terminal "$DIR/INSTALAR_NO_MAC.command"
+fi

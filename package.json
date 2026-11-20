@@ -1,0 +1,10 @@
+{
+  "name": "media-grabber-extension",
+  "version": "5.0.0",
+  "description": "Media Grabber Pro — Extensão + Motor Local de Padrões v2",
+  "private": true,
+  "scripts": {
+    "start": "node js/media_engine_server.js",
+    "test": "node js/motor_padrao/testes/rodar_testes.js"
+  }
+}

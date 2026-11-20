@@ -1,0 +1,118 @@
+{
+  "versao_schema": 2,
+  "id": "guadalupe_leilao",
+  "nome": "Leilão Guadalupe 22/11",
+  "descricao": "Vídeo de fala no curral, sério. Logo 3D dourado no topo, legenda Montserrat caixa alta em corte seco, elementos brancos presos na fala, fechamento no papel.",
+  "origem_assets": "Desktop\\CLENTES\\GUADALUPE\\padrao_leilao\\assets",
+  "canvas": { "w": 1080, "h": 1920, "fps": 30 },
+  "fontes": {
+    "montserrat": { "arquivo": "assets/Montserrat-VF.ttf", "peso": 800 }
+  },
+  "cores": { "branco": "#FFFFFF", "dourado_logo": "#C9A24A" },
+  "legenda": {
+    "ativa": true,
+    "fonte": "montserrat",
+    "peso": 800,
+    "tamanho_px": 46,
+    "cor": "#FFFFFF",
+    "caixa": "alta",
+    "ancora": "centro_bloco",
+    "centro_y": 1385,
+    "largura_max_px": 900,
+    "max_linhas": 2,
+    "palavras_por_bloco": { "min": 1, "max": 5 },
+    "max_caracteres": 34,
+    "entrada": { "tipo": "corte_seco" },
+    "palavra_ativa": { "modo": "nenhum" },
+    "sombra": { "cor": "#000000", "opacidade": 0.5, "dx": 0, "dy": 3, "desfoque": 6 },
+    "contorno": null,
+    "caixa_fundo": null,
+    "manter_fala_original": true
+  },
+  "destaques": [],
+  "titulo_gancho": { "ativo": false },
+  "numeros": { "ativo": false },
+  "logo": {
+    "ativo": true,
+    "arquivo": "assets/leilao_guadalupe_3d.png",
+    "largura_px": 400,
+    "centro_x": 540,
+    "centro_y": 275,
+    "durante": "video_todo",
+    "acima_do_broll": true
+  },
+  "elementos": {
+    "regra": "entra_na_fala_sai_no_corte",
+    "max_simultaneos": 1,
+    "entrada": { "tipo": "crescer", "de": 0.6, "dur": 0.3 },
+    "saida": { "tipo": "sai_no_corte" },
+    "biblioteca": [
+      {
+        "id": "data_2211",
+        "arquivo": "assets/data_2211_branco.png",
+        "gatilhos": ["22 de novembro", "dia 22", "domingo", "vinte e dois"],
+        "largura_px": 520,
+        "centro_x": 540,
+        "centro_y": 1360,
+        "esconde_legenda": true
+      },
+      {
+        "id": "touros_matrizes_po",
+        "arquivo": "assets/touros_matrizes_po_branco.png",
+        "gatilhos": ["touros", "matrizes", "PO"],
+        "largura_px": 350,
+        "centro_x": 540,
+        "centro_y": 1230,
+        "esconde_legenda": false
+      }
+    ]
+  },
+  "broll": {
+    "ativo": true,
+    "pasta": "D:\\BACKUP CLIENTES\\GUADALUPE\\visita 10-11",
+    "modo": "tela_cheia",
+    "vertical_vai_para": "tela_cheia",
+    "duracao_s": { "min": 2.0, "max": 4.0 },
+    "cobertura_max_pct": 30,
+    "entra": "na_palavra",
+    "legenda_continua": true,
+    "conferir": ["texto_queimado", "marca_dagua"],
+    "ia_gerada_permitida": false
+  },
+  "camera": { "zoom": { "modo": "nenhum", "niveis": [1.0], "intervalo_min_s": 2.5, "lento": null }, "enquadrar_rosto": true },
+  "ritmo": {
+    "novidade_a_cada_s": { "min": 3, "max": 6 },
+    "cortar_pausas_acima_s": 0.25,
+    "duracao_alvo_s": { "min": 30, "max": 40 },
+    "estrutura": ["abertura 0–4 s: quem conduz dá o contexto", "anfitrião: data, horário, local, o que vai a leilão", "plano em dupla", "motion de apoio quando cita canais/app/catálogo (dissolve 0,2 s)", "fechamento AE no papel"]
+  },
+  "transicoes": { "padrao": "corte_seco", "flash": { "cor": "#FFFFFF", "quadros": 2, "max_por_video": 0 }, "dissolve_s": 0.2 },
+  "fechamento": {
+    "ativo": true,
+    "tipo": "clipe",
+    "arquivo": "assets/fechamento_AE.mp4",
+    "duracao_s": 8.5,
+    "entrada": { "tipo": "corte_seco" }
+  },
+  "audio": { "lufs": -14, "voz_limpa": true, "musica": { "ativa": false }, "sfx": {} },
+  "motions_permitidos": ["corte_seco", "crescer", "dissolve", "sai_no_corte", "fade"],
+  "motions_proibidos": ["quique", "rebote", "tremida", "glitch", "neon", "emoji", "caixa pulsando", "zoom punch", "palavra a palavra", "balanço"],
+  "checklist": [
+    "Logo 3D dourado 400 px, centro y≈275, sem animação",
+    "Legenda caixa alta 46 px y≈1385, tudo branco, corte seco",
+    "Data entra quando falam a data e a legenda some enquanto ela aparece",
+    "Nenhum movimento com rebote; dissolves curtos",
+    "Fechamento AE completo",
+    "Dizer: áudio não ouvido"
+  ],
+  "correcoes": [
+    { "data": "2026-11-12", "origem": "usuário", "regra": "Cor: não corrigir (o usuário corrige no CapCut). Entrega principal = rascunho CapCut." },
+    { "data": "2026-11-12", "origem": "medido em 'Marco - Gustavo (final)'", "regra": "Data no lugar da legenda, y≈1360 (substitui y≈1210)", "campo": "elementos.biblioteca.0.centro_y", "valor": 1360 }
+  ],
+  "proveniencia": { "legenda.centro_y": "TREINAMENTO_VISUAL_LEILAO_GUADALUPE.pdf seção 3", "logo.centro_y": "pdf seção 2" },
+  "pendencias": [
+    "Confirmar o arquivo da fonte serifada da data (Century?).",
+    "Medir a largura real do PNG da data (largura_px = 520 é estimativa).",
+    "Exportar o trecho AE do fechamento para assets/fechamento_AE.mp4."
+  ]
+}

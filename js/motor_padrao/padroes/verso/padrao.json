@@ -1,0 +1,163 @@
+{
+  "versao_schema": 2,
+  "id": "verso",
+  "nome": "VERSO Marketing Agro",
+  "descricao": "Reels/Stories de fala, bastidor de feira, entrevista no stand. Legenda pequena minúscula no peito; destaque raro e grande (explosão / serifa / tag roxa); efeitos sempre roxos.",
+  "origem_assets": "Desktop\\CLENTES\\PLATAFORMA_EDICAO_IA\\02_CLIENTES\\VERSO\\padrao_verso\\assets",
+  "canvas": { "w": 1080, "h": 1920, "fps": 30 },
+  "fontes": {
+    "montserrat": { "arquivo": "assets/Montserrat-VF.ttf", "peso": 600 },
+    "playfair_italico": { "arquivo": "assets/PlayfairDisplay-Italic[wght].ttf", "peso": 400, "italico": true }
+  },
+  "cores": { "roxo": "#4F11A8", "roxo_escuro": "#12062D", "roxo_claro": "#8C50FF", "branco": "#FFFFFF", "papel": "#F4F4F2" },
+  "legenda": {
+    "ativa": true,
+    "fonte": "montserrat",
+    "peso": 600,
+    "tamanho_px": 46,
+    "cor": "#FFFFFF",
+    "caixa": "baixa",
+    "sem_pontuacao_final": true,
+    "ancora": "centro_bloco",
+    "centro_y": 1150,
+    "centro_y_entrevista_dupla": 1250,
+    "largura_max_px": 900,
+    "max_linhas": 1,
+    "palavras_por_bloco": { "min": 1, "max": 3 },
+    "max_caracteres": 18,
+    "entrada": { "tipo": "corte_seco" },
+    "palavra_ativa": { "modo": "nenhum" },
+    "sombra": { "cor": "#000000", "opacidade": 0.5, "dx": 0, "dy": 3, "desfoque": 6 },
+    "contorno": null,
+    "caixa_fundo": null
+  },
+  "destaques": [
+    {
+      "id": "explosao",
+      "nome": "Destaque A — explosão",
+      "quando": "gancho, negação, ideia forte",
+      "gatilho": "palavra_chave",
+      "posicao": "substitui_legenda",
+      "centro_y": 1150,
+      "fonte": "montserrat",
+      "peso": 900,
+      "tamanho_px": 170,
+      "cor": "#FFFFFF",
+      "caixa": "baixa",
+      "entrada": { "tipo": "pop", "de": 0.85, "dur": 0.15 },
+      "sincronia": "na_palavra",
+      "penduradas": { "fonte": "montserrat", "peso": 600, "tamanho_px": 34 }
+    },
+    {
+      "id": "serifa",
+      "nome": "Destaque B — serifa",
+      "quando": "promessa, número por extenso, palavra emocional",
+      "gatilho": "palavra_chave",
+      "posicao": "substitui_legenda",
+      "centro_y": 1150,
+      "fonte": "playfair_italico",
+      "peso": 400,
+      "tamanho_px": 140,
+      "cor": "#FFFFFF",
+      "caixa": "baixa",
+      "entrada": { "tipo": "pop", "de": 0.85, "dur": 0.15 },
+      "sincronia": "na_palavra"
+    },
+    {
+      "id": "tag",
+      "nome": "Destaque C — tag roxa",
+      "quando": "CTA, nome da marca, palavra a gravar",
+      "gatilho": "cta",
+      "posicao": "substitui_legenda",
+      "centro_y": 1150,
+      "fonte": "montserrat",
+      "peso": 800,
+      "tamanho_px": 96,
+      "cor": "#FFFFFF",
+      "caixa": "baixa",
+      "tag_fundo": { "cor": "#4F11A8", "padding_px": 24, "raio_px": 16 },
+      "entrada": { "tipo": "pop", "de": 0.85, "dur": 0.15 },
+      "sincronia": "na_palavra"
+    }
+  ],
+  "regras_destaque": { "freq_por_minuto": { "min": 3, "max": 6 }, "nunca_mesmo_tipo_seguido": true, "texto_nao_repete_na_legenda": true },
+  "titulo_gancho": { "ativo": false },
+  "numeros": {
+    "ativo": true,
+    "posicao": "acima_da_cabeca",
+    "fonte": "montserrat",
+    "peso": 900,
+    "tamanho_px": 300,
+    "cor": "#4F11A8",
+    "contorno_branco": true,
+    "centro_y": 600,
+    "entrada": { "tipo": "conta_numero", "dur": 0.8 }
+  },
+  "logo": {
+    "ativo": true,
+    "arquivo": "assets/logo_verso_branco.png",
+    "largura_px": 300,
+    "centro_x": 540,
+    "centro_y": 110,
+    "durante": "video_todo",
+    "acima_do_broll": true
+  },
+  "elementos": {
+    "regra": "entra_na_fala_sai_no_corte",
+    "max_simultaneos": 2,
+    "entrada": { "tipo": "pop", "de": 0.85, "dur": 0.15 },
+    "nunca_sobre_o_rosto": true,
+    "biblioteca": []
+  },
+  "broll": {
+    "ativo": true,
+    "pasta": "VERSO",
+    "modo": "tela_cheia",
+    "vertical_vai_para": "tela_cheia",
+    "duracao_s": { "min": 1.5, "max": 2.5 },
+    "cobertura_max_pct": 40,
+    "entra": "na_palavra",
+    "legenda_continua": true,
+    "ia_gerada_permitida": false
+  },
+  "camera": { "zoom": { "modo": "no_corte_alternado", "niveis": [1.0, 1.15], "intervalo_min_s": 2.0, "lento": null }, "enquadrar_rosto": true },
+  "ritmo": {
+    "novidade_a_cada_s": { "min": 2, "max": 3 },
+    "cortar_pausas_acima_s": 0.15,
+    "duracao_alvo_s": { "min": 20, "max": 60 },
+    "estrutura": ["gancho com explosão ou slate no 1º segundo", "ponte", "corpo (contador/cards)", "CTA com tag", "fechamento"]
+  },
+  "transicoes": { "padrao": "corte_seco", "flash": { "cor": "#4F11A8", "quadros": 2, "max_por_video": 2 }, "dissolve_s": 0 },
+  "fechamento": {
+    "ativo": true,
+    "tipo": "cartela",
+    "fundo": "#12062D",
+    "logo": "assets/logo_verso_branco.png",
+    "largura_px": 520,
+    "centro_y": 960,
+    "duracao_s": 1.8,
+    "animacao": { "tipo": "zoom_lento", "de": 1.0, "ate": 1.05 }
+  },
+  "audio": {
+    "lufs": -14,
+    "voz_limpa": true,
+    "musica": { "ativa": false },
+    "sfx": { "whoosh": { "volume": 0.3 }, "pop": { "volume": 0.3 } }
+  },
+  "motions_permitidos": ["corte_seco", "pop", "sobe_fade", "conta_numero", "zoom_no_corte", "zoom_lento", "flash", "sai_no_corte", "fade"],
+  "motions_proibidos": ["glitch", "neon"],
+  "checklist": [
+    "Legenda minúscula 46 px no peito (y 1150), 1–3 palavras",
+    "Destaques 3–6 por minuto, nunca o mesmo tipo seguido, sem repetir na legenda",
+    "Máx. 2 elementos além da legenda, nunca sobre o rosto",
+    "Efeitos só em roxo (#4F11A8); verde/amarelo só dentro do logo",
+    "Fechamento roxo-escuro com logo branco 520 px",
+    "Dizer: áudio não ouvido"
+  ],
+  "correcoes": [],
+  "proveniencia": { "legenda.centro_y": "PADRAO.md VERSO", "logo.centro_y": "PADRAO.md VERSO (y≈110)" },
+  "pendencias": [
+    "Logo no topo em y≈110 cai dentro da zona da UI do Instagram (0–220): confirmar com o usuário.",
+    "Copiar o logo Verso branco para assets/logo_verso_branco.png."
+  ]
+}

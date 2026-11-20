@@ -1,0 +1,165 @@
+{
+  "versao_schema": 2,
+  "id": "editor_pro",
+  "nome": "Editor Pro",
+  "cliente": "Editor Pro (Referência Pinterest)",
+  "descricao": "Edição editorial cinematográfica 9:16 baseada nas referências do Pinterest: legenda branca limpa em Montserrat ExtraBold (caixa original, sem contorno pesado), palavras-chave em destaque editorial Playfair Display Bold Italic dourado (#F5A623), entrada suave blur-to-focus, título-gancho no topo, números em destaque, cortes limpos (>0.28s), zoom alternado nos cortes e flash sutil nos clímax.",
+  "canvas": { "w": 1080, "h": 1920, "fps": 30 },
+  "fontes": {
+    "montserrat": { "arquivo": "assets/Montserrat-ExtraBold.ttf", "peso": 800, "italico": false },
+    "playfair_italico": { "arquivo": "assets/PlayfairDisplay-BoldItalic.ttf", "peso": 700, "italico": true }
+  },
+  "cores": {
+    "branco": "#FFFFFF",
+    "dourado": "#F5A623",
+    "sombra": "#000000"
+  },
+  "legenda": {
+    "ativa": true,
+    "fonte": "montserrat",
+    "peso": 800,
+    "tamanho_px": 62,
+    "cor": "#FFFFFF",
+    "caixa": "original",
+    "ancora": "centro_bloco",
+    "centro_y": 1340,
+    "largura_max_px": 880,
+    "max_linhas": 2,
+    "entrelinha": 1.12,
+    "palavras_por_bloco": { "min": 2, "max": 4 },
+    "max_caracteres": 26,
+    "quebra_em_pausa_s": 0.35,
+    "entrada": { "tipo": "sobe_fade", "dy": 14, "dur": 0.14 },
+    "palavra_ativa": { "modo": "cor", "cor": "#F5A623", "pulso": false },
+    "sombra": { "cor": "#000000", "opacidade": 0.65, "dx": 2, "dy": 4, "desfoque": 4 },
+    "contorno": null,
+    "manter_fala_original": true,
+    "nao_repetir_destaque": true
+  },
+  "destaques": [
+    {
+      "id": "serifa_dourada",
+      "nome": "Destaque Editorial (Playfair Italic Dourado)",
+      "quando": "palavras-chave emocionais, viradas de frase ou promessas centrais; 4 a 7 vezes por vídeo",
+      "gatilho": "palavra_chave",
+      "freq_por_video": { "min": 4, "max": 7 },
+      "posicao": "linha_abaixo_da_legenda",
+      "espaco_px": 10,
+      "fonte": "playfair_italico",
+      "peso": 700,
+      "tamanho_px": 78,
+      "cor": "#F5A623",
+      "caixa": "original",
+      "entrada": { "tipo": "pop_rebote", "de": 0.78, "pico": 1.08, "giro": -2, "dur": 0.26 },
+      "sincronia": "na_palavra",
+      "sombra": { "cor": "#000000", "opacidade": 0.72, "dx": 2, "dy": 5, "desfoque": 4 }
+    },
+    {
+      "id": "impacto_central",
+      "nome": "Palavra Solo de Impacto (Playfair Grande)",
+      "quando": "clímax da frase ou palavra isolada dramática (ex: 'quebrado', 'perceberia?'); 1 a 3 vezes por vídeo",
+      "gatilho": "climax",
+      "freq_por_video": { "min": 1, "max": 3 },
+      "posicao": "substitui_legenda",
+      "centro_y": 1120,
+      "fonte": "playfair_italico",
+      "peso": 700,
+      "tamanho_px": 98,
+      "cor": "#F5A623",
+      "caixa": "original",
+      "entrada": { "tipo": "slam", "de": 1.38, "blur": 8, "dur": 0.28 },
+      "sincronia": "na_palavra",
+      "sombra": { "cor": "#000000", "opacidade": 0.78, "dx": 3, "dy": 6, "desfoque": 5 }
+    }
+  ],
+  "titulo_gancho": {
+    "ativo": true,
+    "quando": "abertura do corte (0s a 3.2s) para prender atenção nos primeiros segundos",
+    "fonte": "montserrat",
+    "peso": 800,
+    "tamanho_px": 92,
+    "cor": "#FFFFFF",
+    "caixa": "original",
+    "centro_y": 460,
+    "linha2": {
+      "fonte": "playfair_italico",
+      "peso": 700,
+      "tamanho_px": 86,
+      "cor": "#F5A623",
+      "caixa": "original",
+      "sincronia": "na_palavra"
+    },
+    "entrada": { "tipo": "desfoque_foco", "blur": 12, "dur": 0.3 },
+    "duracao_s": { "min": 2.2, "max": 3.8 },
+    "repete_no_fim": false,
+    "brilho": false
+  },
+  "numeros": {
+    "ativo": true,
+    "posicao": "substitui_legenda",
+    "fonte": "montserrat",
+    "peso": 800,
+    "tamanho_px": 106,
+    "cor": "#FFFFFF",
+    "centro_y": 1300,
+    "linha2": {
+      "fonte": "playfair_italico",
+      "peso": 700,
+      "tamanho_px": 76,
+      "cor": "#F5A623",
+      "caixa": "original"
+    },
+    "entrada": { "tipo": "pop", "dur": 0.18 }
+  },
+  "logo": { "ativo": false },
+  "elementos": {
+    "regra": "entra_na_fala_sai_no_corte",
+    "max_simultaneos": 1,
+    "entrada": { "tipo": "fade", "dur": 0.2 },
+    "biblioteca": []
+  },
+  "broll": {
+    "ativo": false,
+    "ia_gerada_permitida": false
+  },
+  "camera": {
+    "zoom": {
+      "modo": "no_corte_alternado",
+      "niveis": [1.0, 1.08],
+      "intervalo_min_s": 3.2,
+      "lento": { "de": 1.0, "ate": 1.07, "dur": 4.5, "max_por_video": 2 }
+    }
+  },
+  "ritmo": {
+    "novidade_a_cada_s": { "min": 2.5, "max": 5.0 },
+    "cortar_pausas_acima_s": 0.28,
+    "duracao_alvo_s": { "min": 25, "max": 60 },
+    "gancho_max_s": 3.5
+  },
+  "transicoes": {
+    "padrao": "corte_seco",
+    "flash": { "cor": "#FFFFFF", "quadros": 3, "max_por_video": 2 },
+    "dissolve_s": 0
+  },
+  "fechamento": { "ativo": false },
+  "audio": {
+    "lufs": -14,
+    "voz_limpa": true,
+    "musica": { "ativa": false, "volume": 0.1, "fade_saida_s": 1.5 }
+  },
+  "zonas_proibidas": [
+    { "nome": "topo_ui", "x0": 0, "y0": 0, "x1": 1080, "y1": 220 },
+    { "nome": "base_ui", "x0": 0, "y0": 1680, "x1": 1080, "y1": 1920 },
+    { "nome": "direita_ui", "x0": 950, "y0": 0, "x1": 1080, "y1": 1920 }
+  ],
+  "motions_permitidos": ["corte_seco", "sai_no_corte", "fade", "desfoque_foco", "pop", "pop_rebote", "slam", "sobe_curto", "sobe_fade", "zoom_no_corte", "zoom_lento", "flash"],
+  "motions_proibidos": [],
+  "foco_ia": "momentos emocionantes, frases de impacto editorial, viradas de raciocínio e ganchos fortes",
+  "layout_padrao": "crop",
+  "proveniencia": {
+    "origem": "referencias_pinterest_pin1_pin4",
+    "fontes": "Montserrat-ExtraBold.ttf + PlayfairDisplay-BoldItalic.ttf (TTF estáticos)"
+  },
+  "correcoes": [],
+  "pendencias": []
+}

@@ -1,0 +1,39 @@
+{
+  "versao_schema": 2,
+  "id": "teste_gaia_like",
+  "nome": "Padrão de teste (estilo Gaia)",
+  "descricao": "Usado só pelos testes automáticos. Assets sintéticos são gerados por rodar_testes.js.",
+  "fontes": { "montserrat": { "arquivo": "assets/Montserrat-VF.ttf", "peso": 800 } },
+  "legenda": {
+    "ativa": true, "fonte": "montserrat", "peso": 800, "tamanho_px": 60, "cor": "#FFFFFF", "caixa": "alta",
+    "centro_y": 1497, "largura_max_px": 900, "max_linhas": 2, "palavras_por_bloco": { "min": 2, "max": 4 },
+    "max_caracteres": 26, "entrada": { "tipo": "corte_seco" },
+    "sombra": { "cor": "#000000", "opacidade": 0.6, "dx": 3, "dy": 4, "desfoque": 2 }
+  },
+  "destaques": [
+    { "id": "dourado", "posicao": "linha_abaixo_da_legenda", "fonte": "montserrat", "peso": 800, "tamanho_px": 60,
+      "cor": "#EBCE1D", "caixa": "baixa", "entrada": { "tipo": "corte_seco" }, "sincronia": "na_palavra", "freq_por_video": { "min": 1, "max": 6 } }
+  ],
+  "titulo_gancho": {
+    "ativo": true, "fonte": "montserrat", "peso": 800, "tamanho_px": 112, "cor": "#FFFFFF", "caixa": "alta", "centro_y": 470,
+    "linha2": { "fonte": "montserrat", "peso": 800, "tamanho_px": 80, "cor": "#EBCE1D", "caixa": "baixa", "sincronia": "na_palavra" },
+    "entrada": { "tipo": "desfoque_foco", "dur": 0.3 }, "duracao_s": { "min": 2, "max": 6 }
+  },
+  "logo": { "ativo": true, "arquivo": "assets/logo.png", "largura_px": 400, "centro_x": 540, "centro_y": 282 },
+  "elementos": {
+    "regra": "entra_na_fala_sai_no_corte", "max_simultaneos": 2, "entrada": { "tipo": "crescer", "de": 0.6, "dur": 0.3 },
+    "biblioteca": [
+      { "id": "selo_atencao", "arquivo": "assets/selo.png", "gatilhos": ["atenção"], "largura_px": 400, "centro_x": 540, "centro_y": 1300, "esconde_legenda": true }
+    ]
+  },
+  "broll": {
+    "ativo": true, "modo": "faixa_topo_ou_tela_cheia", "faixa": { "y0": 0, "y1": 760, "esfumado_px": 90, "atras_do_logo": true },
+    "duracao_s": { "min": 2.5, "max": 4 }, "cobertura_max_pct": 40
+  },
+  "camera": { "zoom": { "modo": "no_corte_alternado", "niveis": [1.0, 1.2], "intervalo_min_s": 2.5 } },
+  "ritmo": { "novidade_a_cada_s": { "min": 2, "max": 6 }, "duracao_alvo_s": { "min": 5, "max": 60 } },
+  "transicoes": { "padrao": "corte_seco", "flash": { "cor": "#FFFFFF", "quadros": 2, "max_por_video": 2 } },
+  "fechamento": { "ativo": true, "tipo": "cartela", "fundo": "#FFFFFF", "logo": "assets/logo_cor.png", "largura_px": 600, "centro_y": 960, "duracao_s": 1.5, "animacao": { "tipo": "zoom_lento", "de": 1.0, "ate": 1.05 } },
+  "audio": { "lufs": -14, "musica": { "ativa": false } },
+  "motions_proibidos": ["glitch"]
+}

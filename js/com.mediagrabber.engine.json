@@ -1,0 +1,9 @@
+{
+  "name": "com.mediagrabber.engine",
+  "description": "Media Grabber Pro Local High-Speed Video Engine",
+  "path": "C:\\Users\\kerci\\Documents\\antigravity\\media-grabber-extension\\js\\native_host.bat",
+  "type": "stdio",
+  "allowed_origins": [
+    "chrome-extension://piomkgcddbnbcnmgljeehodljpkfdhpi/"
+  ]
+}

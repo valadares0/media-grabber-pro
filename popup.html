@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Media Grabber Pro v3.0</title>
+  <link rel="stylesheet" href="css/popup.css" />
+</head>
+<body>
+  <!-- ===================================================================== -->
+  <!-- VIEW 1: SCANNER & MEDIA LIST                                          -->
+  <!-- ===================================================================== -->
+  <div id="scannerView" class="view-container">
+    <!-- Top Header -->
+    <header class="header">
+      <div class="brand">
+        <div class="brand-logo" aria-hidden="true">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+            <path d="M12 3v11m0 0l-4-4m4 4l4-4M5 17v2a2 2 0 002 2h10a2 2 0 002-2v-2" stroke="url(#grad)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+            <defs>
+              <linearGradient id="grad" x1="4" y1="3" x2="20" y2="21" gradientUnits="userSpaceOnUse">
+                <stop stop-color="#38bdf8"/>
+                <stop offset="1" stop-color="#6366f1"/>
+              </linearGradient>
+            </defs>
+          </svg>
+        </div>
+        <div class="brand-text">
+          <h1>Media Grabber <span class="pro-tag">PRO</span></h1>
+          <p id="siteHost" class="site-subtitle">Escaneando página ativa...</p>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <button id="togglePasteLinkBtn" class="btn-icon btn-paste-link" title="Colar o link de qualquer vídeo, Live, Shorts ou site para escanear diretamente">
+          🔗 Colar Link
+        </button>
+
+        <button id="scanBtn" class="btn-icon" title="Zerar lista anterior e escanear apenas esta página agora">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+            <path d="M3 3v5h5"/>
+            <path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/>
+            <path d="M16 16h5v5"/>
+          </svg>
+          <span>Scanner</span>
+        </button>
+
+        <button id="autoScrollBtn" class="btn-icon" title="Rolar a página inteira para despertar vídeos ocultos e escanear tudo">
+          ⏬ Rolar
+        </button>
+
+        <button id="openStudioBtn" class="btn-studio" title="Abrir Estúdio para cortar apenas um trecho de um vídeo">
+          ✂️ Cortar Vídeo
+        </button>
+
+        <button id="openAiStudioBtn" class="btn-studio" title="IA encontra os melhores momentos e gera cortes virais 9:16 com legenda">
+          ⚡ Cortes IA
+        </button>
+
+        <button id="downloadAllBtn" class="btn-primary-sm" title="Baixar mídias selecionadas ou todas na maior resolução">
+          ⬇ Baixar Tudo
+        </button>
+      </div>
+    </header>
+
+    <!-- Direct Paste Link Scanner Bar -->
+    <div id="pasteLinkPanel" class="paste-link-panel hidden">
+      <div class="paste-link-row">
+        <button id="pasteClipboardBtn" class="btn-paste-clip" title="Colar link da sua área de transferência automaticamente">
+          📋 Colar
+        </button>
+        <input
+          type="text"
+          id="pasteUrlInput"
+          class="paste-url-input"
+          placeholder="Cole aqui o link (YouTube, Live, Shorts, Instagram, Behance ou qualquer site)..."
+        />
+        <button id="scanUrlBtn" class="btn-scan-url" title="Escanear todas as mídias ou o vídeo deste link">
+          🔍 Escanear Link
+        </button>
+        <button id="cutUrlBtn" class="btn-cut-url" title="Carregar o vídeo deste link diretamente no Estúdio de Corte">
+          ✂️ Cortar Link
+        </button>
+      </div>
+      <div id="pasteLinkStatus" class="paste-link-status hidden"></div>
+    </div>
+
+    <!-- Global Batch Progress Bar (hidden unless batch downloading) -->
+    <div id="batchProgressWrap" class="batch-progress hidden">
+      <div class="batch-progress-info">
+        <span id="batchProgressLabel">Baixando pacote...</span>
+        <span id="batchProgressPct">0%</span>
+      </div>
+      <div class="progress-track">
+        <div id="batchProgressFill" class="progress-fill" style="width: 0%"></div>
+      </div>
+    </div>
+
+    <!-- Filter Navigation Bar -->
+    <nav class="tabs-bar" aria-label="Filtro de tipo de mídia">
+      <button class="tab active" data-type="all">
+        Todas <span id="countAll" class="tab-count">0</span>
+      </button>
+      <button class="tab" data-type="video">
+        🎬 Vídeos <span id="countVideo" class="tab-count">0</span>
+      </button>
+      <button class="tab" data-type="image">
+        🖼️ Fotos <span id="countImage" class="tab-count">0</span>
+      </button>
+      <button class="tab" data-type="audio">
+        🎵 Áudios <span id="countAudio" class="tab-count">0</span>
+      </button>
+    </nav>
+
+    <!-- Smart Tools Sub-bar (Select All, Auto-Numbering, HD+ Filter, Open Folder) -->
+    <div class="tools-bar">
+      <label class="tool-check" title="Selecionar ou desmarcar todos os itens visíveis">
+        <input type="checkbox" id="selectAllCheck" />
+        <span>Selecionar (<strong id="selectedCount">0</strong>)</span>
+      </label>
+
+      <label class="tool-check" title="Adicionar prefixo numérico (01_, 02_...) aos arquivos baixados">
+        <input type="checkbox" id="autoNumberCheck" checked />
+        <span>Numerar (01_)</span>
+      </label>
+
+      <label class="tool-check" title="Ocultar imagens pequenas e mostrar apenas alta resolução">
+        <input type="checkbox" id="hdOnlyCheck" />
+        <span>✨ Apenas HD+</span>
+      </label>
+
+      <button id="openFolderTopBtn" class="tool-link-btn" title="Abrir pasta de Downloads no Windows">
+        📂 Pasta
+      </button>
+    </div>
+
+    <!-- Media List Container -->
+    <main id="mediaList" class="media-list" role="region" aria-live="polite">
+      <div class="empty-state">
+        <div class="empty-icon">🔍</div>
+        <h2>Escaneando página atual...</h2>
+        <p>Clique em <strong>Scanner</strong> para zerar e mapear novamente, ou em <strong>⏬ Rolar</strong> para capturar a página inteira.</p>
+      </div>
+    </main>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- VIEW 2: VIDEO TRIMMER STUDIO (ESTÚDIO DE CORTE DE VÍDEO)              -->
+  <!-- ===================================================================== -->
+  <div id="studioView" class="view-container studio-container hidden">
+    <!-- Studio Header -->
+    <header class="studio-header">
+      <button id="backToListBtn" class="btn-back" title="Voltar para a lista de vídeos escaneados">
+        ← Voltar à Lista
+      </button>
+
+      <div class="studio-video-picker">
+        <label for="studioVideoSelect">🎬 Vídeo:</label>
+        <select id="studioVideoSelect" class="studio-select"></select>
+      </div>
+
+      <div class="studio-top-actions">
+        <button id="captureStudioFrameBtn" class="btn-icon" title="Tirar print em alta definição da cena atual">
+          📸 Salvar Cena (JPG)
+        </button>
+        <button id="expandFullTabBtn" class="btn-icon" title="Abrir o Estúdio de Corte em uma aba inteira no monitor">
+          ⛶ Tela Cheia
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Real-Time Scene Preview Monitor -->
+    <div class="studio-monitor-wrap">
+      <div class="studio-monitor">
+        <video id="studioVideo" playsinline preload="auto"></video>
+        <img id="studioBridgeImg" class="hidden" alt="Cena em tempo real" />
+
+        <!-- Real-Time Needle Indicator Overlay -->
+        <div id="studioSceneBadge" class="studio-scene-badge">
+          🟢 INÍCIO: 00:00.0
+        </div>
+
+        <div id="studioResolutionTag" class="studio-res-tag">
+          1080p Full HD
+        </div>
+      </div>
+    </div>
+
+    <!-- Interactive Dual-Needle Timeline Section -->
+    <div class="studio-timeline-panel">
+      <div class="timeline-header-info">
+        <span class="tl-badge start-badge">🟢 Agulha Início: <strong id="tlStartLabel">00:00.0</strong></span>
+        <span class="tl-badge duration-badge">⏱️ Trecho Cortado: <strong id="tlCutDuration">00:10.0s</strong> (<span id="tlEstWeight">~2.5 MB</span>)</span>
+        <span class="tl-badge end-badge">🔴 Agulha Fim: <strong id="tlEndLabel">00:10.0</strong></span>
+      </div>
+
+      <!-- Visual Dual-Slider Track -->
+      <div class="timeline-track-container" id="timelineTrack">
+        <div class="timeline-ruler" id="timelineRuler"></div>
+        <div class="timeline-base-bar"></div>
+        <!-- Highlighted Active Cut Region -->
+        <div id="timelineSelectedBar" class="timeline-selected-bar"></div>
+        <!-- Playhead Cursor -->
+        <div id="timelinePlayhead" class="timeline-playhead" title="Posição atual de reprodução"></div>
+
+        <!-- Needle 1: START (IN) -->
+        <div id="needleStart" class="timeline-needle needle-start" tabindex="0" title="Arraste para escolher o INÍCIO do corte">
+          <div class="needle-grip">[ IN</div>
+          <div class="needle-line"></div>
+          <div id="tooltipStart" class="needle-tooltip">00:00.0</div>
+        </div>
+
+        <!-- Needle 2: END (OUT) -->
+        <div id="needleEnd" class="timeline-needle needle-end" tabindex="0" title="Arraste para escolher o FINAL do corte">
+          <div class="needle-grip">OUT ]</div>
+          <div class="needle-line"></div>
+          <div id="tooltipEnd" class="needle-tooltip">00:10.0</div>
+        </div>
+      </div>
+
+      <!-- Editable Time Inputs & Frame-by-Frame Nudge Controls -->
+      <div class="time-editors-grid">
+        <!-- Start Time Box -->
+        <div class="time-editor-card start-card">
+          <div class="time-card-top">
+            <label for="inputStartTime">🟢 Cortar Início (MM:SS.d):</label>
+            <button id="setStartCurrentBtn" class="mini-nudge-btn" title="Marcar início na posição atual">Marcar Aqui</button>
+          </div>
+          <div class="time-input-row">
+            <button class="nudge-btn" data-target="start" data-delta="-1">-1s</button>
+            <button class="nudge-btn" data-target="start" data-delta="-0.1">-0.1s</button>
+            <input type="text" id="inputStartTime" class="time-input" value="00:00.0" />
+            <button class="nudge-btn" data-target="start" data-delta="0.1">+0.1s</button>
+            <button class="nudge-btn" data-target="start" data-delta="1">+1s</button>
+          </div>
+        </div>
+
+        <!-- Center Playback Preview Controls -->
+        <div class="studio-play-controls">
+          <button id="previewCutLoopBtn" class="btn-preview-cut" title="Dar play apenas no trecho entre a agulha inicial e final">
+            ▶ Assistir Trecho
+          </button>
+          <span id="studioTotalDurationLabel" class="total-dur-text">Total: 00:00.0</span>
+        </div>
+
+        <!-- End Time Box -->
+        <div class="time-editor-card end-card">
+          <div class="time-card-top">
+            <label for="inputEndTime">🔴 Cortar Final (MM:SS.d):</label>
+            <button id="setEndCurrentBtn" class="mini-nudge-btn" title="Marcar final na posição atual">Marcar Aqui</button>
+          </div>
+          <div class="time-input-row">
+            <button class="nudge-btn" data-target="end" data-delta="-1">-1s</button>
+            <button class="nudge-btn" data-target="end" data-delta="-0.1">-0.1s</button>
+            <input type="text" id="inputEndTime" class="time-input" value="00:10.0" />
+            <button class="nudge-btn" data-target="end" data-delta="0.1">+0.1s</button>
+            <button class="nudge-btn" data-target="end" data-delta="1">+1s</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom Export & Customization Bar (Edit Name, Resolution, Mode & Progress Bar) -->
+    <footer class="studio-export-footer">
+      <div class="export-options-row">
+        <div class="export-field name-field">
+          <label for="studioClipName">✏️ Nome para salvar o corte:</label>
+          <input type="text" id="studioClipName" class="studio-text-input" placeholder="Nome_do_video_corte" />
+        </div>
+
+        <div class="export-field">
+          <label for="studioResSelect">📐 Resolução:</label>
+          <select id="studioResSelect" class="res-select"></select>
+        </div>
+
+        <div class="export-field">
+          <label for="studioModeSelect">🎬 Formato:</label>
+          <select id="studioModeSelect" class="mode-select">
+            <option value="clip_video">🎬 Vídeo Cortado (MP4)</option>
+            <option value="clip_audio">🎵 Apenas Áudio do Trecho (WAV)</option>
+            <option value="clip_frames">🖼️ Fotos Início + Fim (JPG)</option>
+          </select>
+        </div>
+
+        <button id="saveTrimmedClipBtn" class="btn-save-clip">
+          💾 Cortar e Baixar
+        </button>
+      </div>
+
+      <!-- Studio Cut Progress Bar -->
+      <div id="studioProgressWrap" class="card-progress-wrap hidden">
+        <div class="card-progress-info">
+          <span id="studioProgressStatus">Cortando trecho...</span>
+          <span id="studioProgressPct">0%</span>
+        </div>
+        <div class="progress-track">
+          <div id="studioProgressFill" class="progress-fill" style="width: 0%"></div>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- QUICK PREVIEW MODAL (POP-UP PLAYER & FRAME SNAPSHOT)                  -->
+  <!-- ===================================================================== -->
+  <div id="previewModal" class="modal hidden" role="dialog" aria-modal="true">
+    <div class="modal-backdrop" id="modalBackdrop"></div>
+    <div class="modal-content">
+      <div class="modal-header">
+        <div class="modal-title-wrap">
+          <span id="modalBadge" class="badge video">MP4</span>
+          <h3 id="modalTitle">Visualização Rápida</h3>
+        </div>
+        <div class="modal-header-btns">
+          <button id="modalSnapFrameBtn" class="btn-icon hidden" title="Salvar foto do frame atual em alta resolução">
+            📸 Salvar Frame
+          </button>
+          <button id="modalOpenTrimmerBtn" class="btn-studio-sm hidden" title="Abrir este vídeo no Estúdio de Corte">
+            ✂️ Cortar Trecho
+          </button>
+          <button id="closeModalBtn" class="close-btn" aria-label="Fechar">✕</button>
+        </div>
+      </div>
+      <div id="modalBody" class="modal-body"></div>
+      <div class="modal-footer">
+        <div class="modal-res-group">
+          <label for="modalQualitySelect">Resolução:</label>
+          <select id="modalQualitySelect" class="res-select"></select>
+        </div>
+        <button id="modalDownloadBtn" class="download-btn modal-dl-btn">
+          ⬇ Baixar Arquivo
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/popup.js"></script>
+</body>
+</html>
