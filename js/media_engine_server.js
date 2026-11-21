@@ -642,7 +642,7 @@ const server = http.createServer(async (req, res) => {
   if (pathname === "/api/self-update" && req.method === "POST") {
     try {
       const extDir = path.resolve(__dirname, "..");
-      const gitProc = spawn("git", ["pull", "origin", "main"], { cwd: extDir });
+      const gitProc = spawn("git", ["pull", "--autostash", "origin", "main"], { cwd: extDir });
       let output = "";
       let errOutput = "";
       gitProc.stdout.on("data", (d) => { output += d.toString(); });

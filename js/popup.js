@@ -662,6 +662,27 @@ async function fetchHlsBuffer(m3u8Url, onProgress, rangeStartSec = null, rangeEn
   return { chunks, downloadedBytes };
 }
 
+// Identifica o formato REAL do arquivo pelos primeiros bytes (evita salvar .ts/.webm/.html com extensão .mp4,
+// que o macOS/QuickTime recusa abrir como "corrompido").
+async function sniffFileType(blobOrBuf) {
+  const buf = blobOrBuf instanceof Blob ? await blobOrBuf.slice(0, 400).arrayBuffer() : blobOrBuf.slice(0, 400);
+  const b = new Uint8Array(buf);
+  const s = (o, n) => String.fromCharCode(...b.slice(o, o + n));
+  if (b[0] === 0x47 && (b.length < 189 || b[188] === 0x47)) return { ext: "ts", kind: "video" };
+  if (s(4, 4) === "ftyp") return { ext: s(8, 4) === "qt  " ? "mov" : s(8, 4).startsWith("M4A") ? "m4a" : "mp4", kind: "video" };
+  if (b[0] === 0x1a && b[1] === 0x45 && b[2] === 0xdf && b[3] === 0xa3) return { ext: "webm", kind: "video" };
+  if (b[0] === 0xff && b[1] === 0xd8) return { ext: "jpg", kind: "image" };
+  if (b[0] === 0x89 && s(1, 3) === "PNG") return { ext: "png", kind: "image" };
+  if (s(0, 4) === "RIFF" && s(8, 4) === "WEBP") return { ext: "webp", kind: "image" };
+  if (s(0, 3) === "GIF") return { ext: "gif", kind: "image" };
+  if (s(0, 4) === "RIFF" && s(8, 4) === "WAVE") return { ext: "wav", kind: "audio" };
+  if (s(0, 4) === "OggS") return { ext: "ogg", kind: "audio" };
+  if (s(0, 3) === "ID3" || (b[0] === 0xff && (b[1] & 0xe0) === 0xe0)) return { ext: "mp3", kind: "audio" };
+  const head = s(0, 20).trim().toLowerCase();
+  if (head.startsWith("<") || head.startsWith("{")) return { ext: "", kind: "text" };
+  return { ext: "", kind: "unknown" };
+}
+
 async function fetchDirectWithProgress(primaryUrl, onProgress, fallbackUrl = "") {
   let resp = await fetch(primaryUrl).catch(() => null);
   if ((!resp || !resp.ok) && fallbackUrl && fallbackUrl !== primaryUrl) {
@@ -938,16 +959,23 @@ async function executeDownload(item, chosenVariant, mode, buttonEl, progressRefs
       const { chunks, downloadedBytes } = await fetchHlsBuffer(targetUrl, (pct, rec, _tot, curSeg, totSeg) => {
         setProgress(pct, `Baixando vídeo (${curSeg}/${totSeg}): ${formatBytes(rec)}`);
       });
-      const blob = new Blob(chunks, { type: "video/mp4" });
+      const blob = new Blob(chunks);
+      const sniffed = await sniffFileType(chunks[0]);
+      const hlsExt = sniffed.ext === "mp4" ? "mp4" : "ts"; // segmentos .ts brutos NÃO são .mp4 (Mac recusa abrir)
       const blobUrl = URL.createObjectURL(blob);
       const tag = sanitizeFileName(resLabel.split(" ")[0]);
       savedDownloadId = await chrome.downloads.download({
         url: blobUrl,
-        filename: `MediaGrabber/Videos/${currentSiteName}/${safeName}_${tag}.mp4`,
+        filename: `MediaGrabber/Videos/${currentSiteName}/${safeName}_${tag}.${hlsExt}`,
         saveAs: false
       });
       setTimeout(() => URL.revokeObjectURL(blobUrl), 30000);
-      setProgress(100, `✓ Concluído (${formatBytes(downloadedBytes)})!`);
+      setProgress(
+        100,
+        hlsExt === "ts"
+          ? `✓ Salvo como .ts (${formatBytes(downloadedBytes)}) — abra no VLC ou ligue o motor local para MP4`
+          : `✓ Concluído (${formatBytes(downloadedBytes)})!`
+      );
     } else {
       try {
         const blob = await fetchDirectWithProgress(
@@ -958,10 +986,15 @@ async function executeDownload(item, chosenVariant, mode, buttonEl, progressRefs
           },
           fallbackUrl
         );
+        const sniffed = await sniffFileType(blob);
+        if (sniffed.kind === "text" || blob.size < 512 && sniffed.kind === "unknown") {
+          throw new Error("Resposta não é mídia (HTML/erro)");
+        }
         const blobUrl = URL.createObjectURL(blob);
         const tag = sanitizeFileName(resLabel.split(" ")[0]);
         const folder = item.type === "video" ? "Videos" : item.type === "audio" ? "Audios" : "Fotos";
-        const ext = (chosenVariant && chosenVariant.ext ? chosenVariant.ext : item.ext || "mp4").toLowerCase();
+        const declaredExt = (chosenVariant && chosenVariant.ext ? chosenVariant.ext : item.ext || "mp4").toLowerCase();
+        const ext = sniffed.ext || declaredExt;
         savedDownloadId = await chrome.downloads.download({
           url: blobUrl,
           filename: `MediaGrabber/${folder}/${currentSiteName}/${safeName}_${tag}.${ext}`,
@@ -2026,15 +2059,17 @@ saveTrimmedClipBtn.addEventListener("click", async () => {
           trimStart,
           trimEnd
         );
-        const blob = new Blob(chunks, { type: "video/mp4" });
+        const blob = new Blob(chunks);
+        const cutSniff = await sniffFileType(chunks[0]);
+        const cutExt = cutSniff.ext === "mp4" ? "mp4" : "ts";
         const blobUrl = URL.createObjectURL(blob);
         await chrome.downloads.download({
           url: blobUrl,
-          filename: `MediaGrabber/Videos/${currentSiteName}/${customFileName}.mp4`,
+          filename: `MediaGrabber/Videos/${currentSiteName}/${customFileName}.${cutExt}`,
           saveAs: false
         });
         setTimeout(() => URL.revokeObjectURL(blobUrl), 30000);
-        setStudioProg(100, `✓ Trecho cortado salvo com sucesso (${formatBytes(downloadedBytes)})!`);
+        setStudioProg(100, `✓ Trecho salvo${cutExt === "ts" ? " (.ts — abra no VLC)" : ""} (${formatBytes(downloadedBytes)})!`);
         hlsSucceeded = true;
       } catch (_) {
         hlsSucceeded = false;
