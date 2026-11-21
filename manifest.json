@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Media Grabber Pro",
-  "version": "5.0.0",
+  "version": "5.1.0",
   "description": "Scanner inteligente de vídeos, YouTube (Lives, Vídeos e Shorts), streams HLS e fotos em alta resolução com Estúdio de Corte.",
   "permissions": [
     "downloads",

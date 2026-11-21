@@ -296,9 +296,32 @@ async function resumeBgJobs() {
     if (header && header.parentNode) header.parentNode.insertBefore(box, header.nextSibling);
     else document.body.prepend(box);
   }
+  box.innerHTML = "";
 
   const token = await getEngineToken();
   const headers = token ? { "X-MG-Token": token } : {};
+
+  if (list.length > 1) {
+    const headerRow = document.createElement("div");
+    headerRow.className = "bg-jobs-header";
+    headerRow.innerHTML = `<span>Downloads em Segundo Plano (${list.length})</span>`;
+    const cancelAllBtn = document.createElement("button");
+    cancelAllBtn.className = "btn-cancel-all";
+    cancelAllBtn.textContent = "✕ Cancelar Todos";
+    cancelAllBtn.onclick = async () => {
+      cancelAllBtn.disabled = true;
+      cancelAllBtn.textContent = "Cancelando...";
+      try {
+        await fetch(`${ENGINE_BASE}/api/cancel-all`, { method: "POST", headers });
+      } catch (_) {}
+      for (const e of list) {
+        await untrackBgJob(e.jobId);
+      }
+      box.innerHTML = "";
+    };
+    headerRow.appendChild(cancelAllBtn);
+    box.appendChild(headerRow);
+  }
 
   for (const entry of list) {
     const row = document.createElement("div");
@@ -308,9 +331,33 @@ async function resumeBgJobs() {
     const title = document.createElement("span");
     title.className = "bg-job-title";
     title.textContent = entry.title;
+    
+    const right = document.createElement("div");
+    right.style.display = "flex";
+    right.style.alignItems = "center";
+    right.style.gap = "6px";
+
     const pct = document.createElement("b");
     pct.textContent = "…";
-    top.append(title, pct);
+
+    const cancelJobBtn = document.createElement("button");
+    cancelJobBtn.className = "btn-cancel-job";
+    cancelJobBtn.title = "Cancelar este download";
+    cancelJobBtn.textContent = "✕";
+    cancelJobBtn.onclick = async (e) => {
+      e.stopPropagation();
+      cancelJobBtn.disabled = true;
+      try {
+        await fetch(`${ENGINE_BASE}/api/cancel/${entry.jobId}`, { method: "POST", headers });
+      } catch (_) {}
+      await untrackBgJob(entry.jobId);
+      row.remove();
+      if (!box.querySelectorAll(".bg-job").length) box.innerHTML = "";
+    };
+
+    right.append(pct, cancelJobBtn);
+    top.append(title, right);
+
     const bar = document.createElement("div");
     bar.className = "bg-job-bar";
     const fill = document.createElement("div");
@@ -340,7 +387,8 @@ async function resumeBgJobs() {
         status.textContent = job.statusText || "Processando...";
         if (job.status === "done" || job.status === "error") {
           row.classList.add(job.status);
-          if (job.status === "error") status.textContent = "Erro: " + (job.error || "falha");
+          cancelJobBtn.remove();
+          if (job.status === "error") status.textContent = job.error || "falha";
           if (job.status === "done" && job.outputPath) {
             const open = document.createElement("button");
             open.className = "btn-icon";
@@ -743,26 +791,54 @@ async function executeDownload(item, chosenVariant, mode, buttonEl, progressRefs
     let savedFilePath = null;
 
     const useEngine =
-      Boolean(item.isEngine || (chosenVariant && chosenVariant.isEngine) || isPlatformUrl(targetUrl)) &&
-      mode !== "photo_only";
+      Boolean(
+        item.isEngine ||
+        (chosenVariant && chosenVariant.isEngine) ||
+        isPlatformUrl(targetUrl) ||
+        item.type === "video" ||
+        targetUrl.includes(".m3u8")
+      ) && mode !== "photo_only";
 
     if (useEngine) {
-      const engineJob = await runLocalEngineDownload(
-        {
-          url: item.sourcePageUrl || targetUrl,
-          title: item.title,
-          filename: sanitizeFileName(item.title),
-          site: currentSiteName,
-          mode,
-          height: (chosenVariant && chosenVariant.height) || 1080,
-          orderPrefix: prefix
-        },
-        (pct, statusText) => {
-          setProgress(pct, statusText);
+      let engineJob = null;
+      try {
+        engineJob = await runLocalEngineDownload(
+          {
+            url: item.sourcePageUrl || targetUrl,
+            title: item.title,
+            filename: sanitizeFileName(item.title),
+            site: currentSiteName,
+            mode,
+            height: (chosenVariant && chosenVariant.height) || 1080,
+            orderPrefix: prefix
+          },
+          (pct, statusText) => {
+            setProgress(pct, statusText);
+          }
+        );
+        savedFilePath = engineJob.outputPath;
+        setProgress(100, engineJob.statusText || "✓ Download concluído!");
+      } catch (engineErr) {
+        // Se falhar o motor local (ex: no Mac antes de iniciar motor), cai no fallback do navegador
+        engineJob = null;
+      }
+      if (engineJob) {
+        if (buttonEl) {
+          buttonEl.textContent = "✓ Salvo!";
+          buttonEl.classList.add("done");
         }
-      );
-      savedFilePath = engineJob.outputPath;
-      setProgress(100, engineJob.statusText || "✓ Download concluído!");
+        if (progressRefs && progressRefs.openFolderBtn) {
+          progressRefs.openFolderBtn.classList.remove("hidden");
+          progressRefs.openFolderBtn.onclick = (e) => {
+            e.stopPropagation();
+            chrome.runtime.sendMessage({
+              action: "OPEN_DOWNLOAD_FOLDER",
+              filePath: savedFilePath
+            });
+          };
+        }
+        return;
+      }
     } else if (mode === "photo_only") {
       setProgress(40, "Preparando imagem em alta definição...");
       if (item.type === "video") {

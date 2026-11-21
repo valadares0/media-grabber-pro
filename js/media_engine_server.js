@@ -482,6 +482,7 @@ function startDownloadJob(opts) {
   args.push("--", url);
 
   const proc = spawn(YTDLP_BIN, args, { windowsHide: true });
+  job._proc = proc;
   let lastStderrErr = "";
 
   function handleOutputLine(line) {
@@ -698,6 +699,42 @@ const server = http.createServer(async (req, res) => {
       return send(404, { ok: false, error: "Job não encontrado" });
     }
     return send(200, { ok: true, job });
+  }
+
+  if (pathname.startsWith("/api/cancel/") && req.method === "POST") {
+    const jobId = pathname.replace("/api/cancel/", "").trim();
+    const job = jobs.get(jobId);
+    if (job) {
+      if (job._proc && !job._proc.killed) {
+        try { job._proc.kill("SIGKILL"); } catch (_) {}
+      }
+      job.status = "error";
+      job.error = "Cancelado pelo usuário";
+      job.statusText = "Download cancelado.";
+      try {
+        if (job.outputPath && fs.existsSync(job.outputPath)) fs.unlinkSync(job.outputPath);
+      } catch (_) {}
+    }
+    return send(200, { ok: true, jobId, cancelled: true });
+  }
+
+  if (pathname === "/api/cancel-all" && req.method === "POST") {
+    let count = 0;
+    for (const [id, job] of jobs.entries()) {
+      if (job.status === "running") {
+        if (job._proc && !job._proc.killed) {
+          try { job._proc.kill("SIGKILL"); } catch (_) {}
+        }
+        job.status = "error";
+        job.error = "Cancelado pelo usuário";
+        job.statusText = "Cancelado.";
+        try {
+          if (job.outputPath && fs.existsSync(job.outputPath)) fs.unlinkSync(job.outputPath);
+        } catch (_) {}
+        count++;
+      }
+    }
+    return send(200, { ok: true, cancelledCount: count });
   }
 
   if (pathname.startsWith("/api/file/") && req.method === "GET") {
