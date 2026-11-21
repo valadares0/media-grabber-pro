@@ -966,9 +966,10 @@ async function executeDownload(item, chosenVariant, mode, buttonEl, progressRefs
       const { chunks, downloadedBytes } = await fetchHlsBuffer(targetUrl, (pct, rec, _tot, curSeg, totSeg) => {
         setProgress(pct, `Baixando vídeo (${curSeg}/${totSeg}): ${formatBytes(rec)}`);
       });
-      const blob = new Blob(chunks);
       const sniffed = await sniffFileType(chunks[0]);
       const hlsExt = sniffed.ext === "mp4" ? "mp4" : "ts"; // segmentos .ts brutos NÃO são .mp4 (Mac recusa abrir)
+      const mimeType = hlsExt === "mp4" ? "video/mp4" : "video/mp2t";
+      const blob = new Blob(chunks, { type: mimeType });
       const blobUrl = URL.createObjectURL(blob);
       const tag = sanitizeFileName(resLabel.split(" ")[0]);
       savedDownloadId = await chrome.downloads.download({
@@ -997,11 +998,14 @@ async function executeDownload(item, chosenVariant, mode, buttonEl, progressRefs
         if (sniffed.kind === "text" || blob.size < 512 && sniffed.kind === "unknown") {
           throw new Error("Resposta não é mídia (HTML/erro)");
         }
-        const blobUrl = URL.createObjectURL(blob);
         const tag = sanitizeFileName(resLabel.split(" ")[0]);
         const folder = item.type === "video" ? "Videos" : item.type === "audio" ? "Audios" : "Fotos";
         const declaredExt = (chosenVariant && chosenVariant.ext ? chosenVariant.ext : item.ext || "mp4").toLowerCase();
-        const ext = sniffed.ext || declaredExt;
+        let ext = sniffed.ext || declaredExt;
+        if (!ext || ext === "txt") ext = item.type === "video" ? "mp4" : item.type === "audio" ? "mp3" : "jpg";
+        const finalMime = ext === "mp4" ? "video/mp4" : ext === "webm" ? "video/webm" : ext === "jpg" ? "image/jpeg" : ext === "png" ? "image/png" : ext === "wav" ? "audio/wav" : "application/octet-stream";
+        const typedBlob = new Blob([blob], { type: finalMime });
+        const blobUrl = URL.createObjectURL(typedBlob);
         savedDownloadId = await chrome.downloads.download({
           url: blobUrl,
           filename: `MediaGrabber/${folder}/${currentSiteName}/${safeName}_${tag}.${ext}`,
