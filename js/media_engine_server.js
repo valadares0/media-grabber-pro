@@ -385,8 +385,40 @@ function buildItemFromYtDlpInfo(info, originalUrl) {
   };
 }
 
+// ---- Fila: no máx. MAX_PARALLEL downloads rodando; o resto espera (continua mesmo com a extensão fechada) ----
+const MAX_PARALLEL = 3;
+const pendingQueue = [];
+function countRunning() {
+  return [...new Set(jobs.values())].filter((j) => j.status === "running").length;
+}
 function startDownloadJob(opts) {
-  const jobId = "job_" + Date.now() + "_" + Math.random().toString(36).slice(2, 7);
+  const jobId = opts.jobId || "job_" + Date.now() + "_" + Math.random().toString(36).slice(2, 7);
+  opts.jobId = jobId;
+  if (countRunning() < MAX_PARALLEL && pendingQueue.length === 0) return _startDownloadJobNow(opts);
+  const job = {
+    jobId, url: opts.url, status: "queued", pct: 0, downloadedBytes: 0, totalBytes: 0,
+    statusText: "Na fila de downloads...", outputPath: "", filename: "", error: null
+  };
+  jobs.set(jobId, job);
+  pendingQueue.push({ job, opts });
+  return job;
+}
+setInterval(() => {
+  while (pendingQueue.length && countRunning() < MAX_PARALLEL) {
+    const { job, opts } = pendingQueue.shift();
+    if (job.status !== "queued") continue; // cancelado enquanto esperava
+    try {
+      const runningJob = _startDownloadJobNow(opts);
+      jobs.set(job.jobId, runningJob);
+    } catch (e) {
+      job.status = "error";
+      job.error = e.message;
+    }
+  }
+}, 700);
+
+function _startDownloadJobNow(opts) {
+  const jobId = opts.jobId || "job_" + Date.now() + "_" + Math.random().toString(36).slice(2, 7);
   const url = String(opts.url || "").trim();
   const site = sanitizeName(opts.site || getDomain(url));
   const mode = opts.mode || "video_full";
@@ -628,7 +660,7 @@ const server = http.createServer(async (req, res) => {
   if (pathname === "/api/health" && req.method === "GET") {
     return send(200, {
       ok: true,
-      version: "5.0.0",
+      version: "5.2.0",
       ytdlp: YTDLP_BIN,
       ffmpeg: FFMPEG_DIR
     });
@@ -641,18 +673,113 @@ const server = http.createServer(async (req, res) => {
 
   if (pathname === "/api/self-update" && req.method === "POST") {
     try {
-      const extDir = path.resolve(__dirname, "..");
-      const gitProc = spawn("git", ["pull", "--autostash", "origin", "main"], { cwd: extDir });
-      let output = "";
-      let errOutput = "";
-      gitProc.stdout.on("data", (d) => { output += d.toString(); });
-      gitProc.stderr.on("data", (d) => { errOutput += d.toString(); });
-      gitProc.on("close", (code) => {
-        if (code === 0) {
-          send(200, { ok: true, output: output.trim() || "Atualizado com sucesso" });
-        } else {
-          send(500, { ok: false, error: errOutput.trim() || `git pull falhou com código ${code}` });
+      const body = await readJsonBody(req);
+      const extId = String(body.extId || "").trim();
+
+      // Find the folder where the running extension lives (Opera GX, Chrome, or engine parent folder)
+      function findExtensionDir(targetId) {
+        const home = os.homedir();
+        const candidatePrefs = [];
+
+        // Mac Opera GX and Chrome paths
+        candidatePrefs.push(
+          path.join(home, "Library/Application Support/com.operasoftware.OperaGX/Default/Preferences"),
+          path.join(home, "Library/Application Support/com.operasoftware.OperaGX/Preferences"),
+          path.join(home, "Library/Application Support/Opera Software/Opera GX Stable/Preferences"),
+          path.join(home, "Library/Application Support/Google/Chrome/Default/Preferences"),
+          path.join(home, "Library/Application Support/Google/Chrome/Default/Secure Preferences")
+        );
+
+        // Windows Opera GX and Chrome paths
+        const appData = process.env.APPDATA || "";
+        const localAppData = process.env.LOCALAPPDATA || "";
+        if (appData) {
+          candidatePrefs.push(
+            path.join(appData, "Opera Software/Opera GX Stable/Preferences"),
+            path.join(appData, "Opera Software/Opera GX Stable/Secure Preferences")
+          );
         }
+        if (localAppData) {
+          candidatePrefs.push(
+            path.join(localAppData, "Google/Chrome/User Data/Default/Preferences"),
+            path.join(localAppData, "Google/Chrome/User Data/Default/Secure Preferences")
+          );
+        }
+
+        if (targetId) {
+          for (const prefFile of candidatePrefs) {
+            try {
+              if (fs.existsSync(prefFile)) {
+                const content = JSON.parse(fs.readFileSync(prefFile, "utf8"));
+                const settings = content?.extensions?.settings || {};
+                if (settings[targetId] && settings[targetId].path && fs.existsSync(settings[targetId].path)) {
+                  return settings[targetId].path;
+                }
+              }
+            } catch (_) {}
+          }
+        }
+        return path.resolve(__dirname, "..");
+      }
+
+      const targetDir = findExtensionDir(extId);
+
+      // If directory is a git repo, use git pull
+      if (fs.existsSync(path.join(targetDir, ".git"))) {
+        const gitProc = spawn("git", ["pull", "--autostash", "origin", "main"], { cwd: targetDir });
+        let output = "";
+        let errOutput = "";
+        gitProc.stdout.on("data", (d) => { output += d.toString(); });
+        gitProc.stderr.on("data", (d) => { errOutput += d.toString(); });
+        gitProc.on("close", (code) => {
+          if (code === 0) {
+            send(200, { ok: true, path: targetDir, output: output.trim() || "Atualizado com sucesso via Git" });
+          } else {
+            send(500, { ok: false, path: targetDir, error: errOutput.trim() || `git pull falhou com código ${code}` });
+          }
+        });
+        return;
+      }
+
+      // If not git repo (e.g. unzipped folder), download latest main zip from GitHub and unpack
+      const tmpZip = path.join(os.tmpdir(), `mg_update_${Date.now()}.zip`);
+      const tmpExtract = path.join(os.tmpdir(), `mg_extract_${Date.now()}`);
+      fs.mkdirSync(tmpExtract, { recursive: true });
+
+      const zipUrl = "https://codeload.github.com/valadares0/media-grabber-pro/zip/refs/heads/main";
+      const https = require("https");
+      const fileStream = fs.createWriteStream(tmpZip);
+      https.get(zipUrl, (resStream) => {
+        if (resStream.statusCode !== 200) {
+          return send(500, { ok: false, error: `GitHub HTTP ${resStream.statusCode}` });
+        }
+        resStream.pipe(fileStream);
+        fileStream.on("finish", () => {
+          fileStream.close();
+          // Extract with tar (available on Mac and Windows 10+)
+          const tarProc = spawn("tar", ["-xf", tmpZip, "-C", tmpExtract]);
+          tarProc.on("close", (tCode) => {
+            try {
+              if (tCode === 0) {
+                const subDir = path.join(tmpExtract, "media-grabber-pro-main");
+                const srcDir = fs.existsSync(subDir) ? subDir : tmpExtract;
+                // Copy all files over targetDir, preserving local token
+                fs.cpSync(srcDir, targetDir, {
+                  recursive: true,
+                  filter: (src) => !src.includes("engine_token.json")
+                });
+                try { fs.rmSync(tmpZip, { force: true }); } catch (_) {}
+                try { fs.rmSync(tmpExtract, { recursive: true, force: true }); } catch (_) {}
+                return send(200, { ok: true, path: targetDir, output: "Atualizado com sucesso via GitHub Zip" });
+              }
+              return send(500, { ok: false, error: `Falha ao descompactar atualização (tar code ${tCode})` });
+            } catch (errCp) {
+              return send(500, { ok: false, error: errCp.message });
+            }
+          });
+        });
+      }).on("error", (e) => {
+        send(500, { ok: false, error: e.message });
       });
       return;
     } catch (e) {
@@ -721,7 +848,7 @@ const server = http.createServer(async (req, res) => {
   if (pathname === "/api/cancel-all" && req.method === "POST") {
     let count = 0;
     for (const [id, job] of jobs.entries()) {
-      if (job.status === "running") {
+      if (job.status === "running" || job.status === "queued") {
         if (job._proc && !job._proc.killed) {
           try { job._proc.kill("SIGKILL"); } catch (_) {}
         }

@@ -284,14 +284,19 @@ async function untrackBgJob(jobId) {
   } catch (_) {}
 }
 
+let _bgJobsGen = 0;
 async function resumeBgJobs() {
+  const currentGen = ++_bgJobsGen;
   let list = [];
   try {
     ({ [BG_JOBS_KEY]: list = [] } = await chrome.storage.local.get(BG_JOBS_KEY));
   } catch (_) { return; }
-  if (!list.length) return;
-
   let box = document.getElementById("bgJobs");
+  if (!list.length) {
+    if (box) box.innerHTML = "";
+    return;
+  }
+
   if (!box) {
     box = document.createElement("div");
     box.id = "bgJobs";
@@ -375,7 +380,7 @@ async function resumeBgJobs() {
 
     (async () => {
       let failCount = 0;
-      while (true) {
+      while (currentGen === _bgJobsGen) {
         let job = null;
         try {
           const c = new AbortController();
@@ -486,9 +491,11 @@ function showUpdateBanner(newVersion) {
     let updated = false;
     try {
       updateBtn.textContent = "📦 Baixando arquivos...";
+      const extId = chrome.runtime?.id || "";
       const r = await fetch(`${ENGINE_BASE}/api/self-update`, {
         method: "POST",
-        headers
+        headers,
+        body: JSON.stringify({ extId })
       });
 
       if (r.ok) {
@@ -503,8 +510,8 @@ function showUpdateBanner(newVersion) {
     } catch (_) {}
 
     if (!updated) {
-      updateBtn.textContent = "⚠️ Execute INSTALAR_MAC";
-      updateBtn.title = "Dê 2 cliques no ATUALIZAR_NO_MAC.command dentro da pasta do Mac para iniciar o motor.";
+      updateBtn.textContent = "⚠️ Execute ATUALIZAR_NO_MAC";
+      updateBtn.title = "Dê 2 cliques no ATUALIZAR_NO_MAC.command na pasta da extensão para atualizar.";
       const bannerText = banner.querySelector(".update-banner-text");
       if (bannerText) {
         bannerText.innerHTML = `Para atualizar direto: dê 2 cliques em <b>ATUALIZAR_NO_MAC.command</b> na pasta da extensão.`;
@@ -2303,39 +2310,95 @@ downloadAllBtn.addEventListener("click", async () => {
 
   downloadAllBtn.disabled = true;
   batchProgressWrap.classList.remove("hidden");
+  batchProgressFill.style.width = "0%";
+  batchProgressPct.textContent = "0%";
+  batchProgressLabel.textContent = `Enviando ${listToDownload.length} itens para download em segundo plano...`;
 
+  const token = await getEngineToken();
+  const authHeaders = token ? { "X-MG-Token": token } : {};
+
+  let enqueued = 0;
   for (let i = 0; i < listToDownload.length; i++) {
     const item = listToDownload[i];
     const bestVariant =
       Array.isArray(item.variants) && item.variants.length > 0
         ? item.variants[0]
         : { label: "Original", url: item.url, ext: item.ext };
+    const orderIndex = i + 1;
+    const prefix = autoNumberCheck && autoNumberCheck.checked ? `${String(orderIndex).padStart(2, "0")}_` : "";
+    const mode = item.type === "video" ? "video_full" : item.type === "image" ? "photo_only" : "audio_only";
+    const targetUrl = bestVariant ? bestVariant.url : item.url;
 
-    const overallPct = Math.round((i / listToDownload.length) * 100);
-    batchProgressFill.style.width = `${overallPct}%`;
-    batchProgressPct.textContent = `${overallPct}%`;
-    batchProgressLabel.textContent = `Baixando ${i + 1} de ${listToDownload.length}: ${item.title}`;
+    if (mode === "photo_only") {
+      // Direct browser download (runs natively in browser background)
+      try {
+        await chrome.runtime.sendMessage({
+          action: "DOWNLOAD",
+          item,
+          url: targetUrl,
+          title: item.title,
+          type: "image",
+          site: currentSiteName,
+          orderPrefix: autoNumberCheck && autoNumberCheck.checked ? orderIndex : null
+        });
+        enqueued++;
+      } catch (_) {}
+    } else {
+      // Engine download (persists in background engine)
+      try {
+        const payload = {
+          url: item.sourcePageUrl || targetUrl,
+          title: item.title,
+          filename: sanitizeFileName(item.title),
+          site: currentSiteName,
+          mode,
+          height: (bestVariant && bestVariant.height) || 1080,
+          orderPrefix: prefix
+        };
+        const r = await fetch(`${ENGINE_BASE}/api/download`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", ...authHeaders },
+          body: JSON.stringify(payload)
+        });
+        if (r.ok) {
+          const res = await r.json();
+          if (res.jobId) {
+            await trackBgJob({
+              jobId: res.jobId,
+              title: prefix + (item.title || "Download"),
+              startedAt: Date.now()
+            });
+            enqueued++;
+          }
+        } else {
+          // Fallback to direct executeDownload if engine is offline
+          executeDownload(item, bestVariant, mode, null, null, orderIndex);
+          enqueued++;
+        }
+      } catch (_) {
+        executeDownload(item, bestVariant, mode, null, null, orderIndex);
+        enqueued++;
+      }
+    }
 
-    await executeDownload(
-      item,
-      bestVariant,
-      item.type === "video" ? "video_full" : item.type === "image" ? "photo_only" : "audio_only",
-      null,
-      null,
-      i + 1
-    );
-    await new Promise((r) => setTimeout(r, 250));
+    const pct = Math.round(((i + 1) / listToDownload.length) * 100);
+    batchProgressFill.style.width = `${pct}%`;
+    batchProgressPct.textContent = `${pct}%`;
+    batchProgressLabel.textContent = `Adicionado à fila (${i + 1}/${listToDownload.length}): ${item.title}`;
   }
 
   batchProgressFill.style.width = "100%";
   batchProgressPct.textContent = "100%";
-  batchProgressLabel.textContent = `✓ Todos os ${listToDownload.length} arquivos foram salvos!`;
+  batchProgressLabel.textContent = `✓ ${enqueued} itens iniciados! Você pode fechar esta aba ou janela que os downloads continuam.`;
+
+  // Atualiza e renderiza a lista de tarefas em segundo plano no próprio popup
+  resumeBgJobs();
 
   setTimeout(() => {
     downloadAllBtn.disabled = false;
     updateCountsAndSelectionUI();
     batchProgressWrap.classList.add("hidden");
-  }, 2600);
+  }, 3500);
 });
 
 // =========================================================================
