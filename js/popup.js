@@ -465,33 +465,41 @@ function showUpdateBanner(newVersion) {
   const updateBtn = banner.querySelector("#btnUpdateNow");
   updateBtn.onclick = async () => {
     updateBtn.disabled = true;
-    updateBtn.textContent = "⏳ Atualizando...";
+    updateBtn.textContent = "⏳ Conectando ao GitHub...";
 
     const token = await getEngineToken();
     const headers = { "Content-Type": "application/json", ...(token ? { "X-MG-Token": token } : {}) };
 
+    let updated = false;
     try {
+      updateBtn.textContent = "📦 Baixando arquivos...";
       const r = await fetch(`${ENGINE_BASE}/api/self-update`, {
         method: "POST",
         headers
       });
 
       if (r.ok) {
+        const resJson = await r.json();
+        updated = true;
         updateBtn.textContent = "✓ Atualizado! Reiniciando...";
         setTimeout(() => {
           chrome.runtime.reload();
           window.close();
         }, 800);
-      } else {
-        throw new Error("Falha no motor local");
       }
-    } catch (_) {
-      // Se o motor local não estiver rodando no momento, instrui ou recarrega
-      updateBtn.textContent = "🔄 Recarregando...";
+    } catch (_) {}
+
+    if (!updated) {
+      updateBtn.textContent = "⚠️ Execute INSTALAR_MAC";
+      updateBtn.title = "Dê 2 cliques no ATUALIZAR_NO_MAC.command dentro da pasta do Mac para iniciar o motor.";
+      const bannerText = banner.querySelector(".update-banner-text");
+      if (bannerText) {
+        bannerText.innerHTML = `Para atualizar direto: dê 2 cliques em <b>ATUALIZAR_NO_MAC.command</b> na pasta da extensão.`;
+      }
       setTimeout(() => {
-        chrome.runtime.reload();
-        window.location.reload();
-      }, 500);
+        updateBtn.disabled = false;
+        updateBtn.textContent = "🔄 Tentar Novamente";
+      }, 4000);
     }
   };
 }
