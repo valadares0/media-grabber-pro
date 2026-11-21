@@ -1076,20 +1076,43 @@ async function runDeepScanOnTab(tabId, resetFirst = false) {
             const h = el.naturalHeight || el.height || el.clientHeight || 0;
             const isPortfolioImg =
               low.includes("project_modules") ||
-              low.includes("behance.net/projects/") ||
+              low.includes("behance.net") ||
               low.includes("unsplash") ||
-              low.includes("pinimg");
+              low.includes("pinimg") ||
+              low.includes("cloudinary") ||
+              low.includes("cdn");
 
-            if (isPortfolioImg || (w >= 250 && h >= 180)) {
+            if (isPortfolioImg || w >= 150 || h >= 150 || (!w && !h)) {
               iIdx++;
               found.push({
                 url: src,
                 type: "image",
                 title: getElementTitle(el, "Foto", iIdx),
                 thumbnail: el.currentSrc || el.src || src,
-                width: w,
-                height: h
+                width: w || 1920,
+                height: h || 1080
               });
+            }
+          });
+
+          // Elementos com background-image (comum no Behance)
+          document.querySelectorAll("[style*='background-image'], [style*='background:']").forEach((el) => {
+            const style = el.getAttribute("style") || "";
+            const bgMatch = style.match(/url\(["']?(https?:\/\/[^"')]+)["']?\)/i);
+            if (bgMatch && bgMatch[1]) {
+              const bgUrl = bgMatch[1];
+              const low = bgUrl.toLowerCase();
+              if (!low.includes("avatar") && !low.includes("favicon") && !low.endsWith(".svg")) {
+                iIdx++;
+                found.push({
+                  url: bgUrl,
+                  type: "image",
+                  title: getElementTitle(el, "Foto", iIdx),
+                  thumbnail: bgUrl,
+                  width: el.clientWidth || 1920,
+                  height: el.clientHeight || 1080
+                });
+              }
             }
           });
         }

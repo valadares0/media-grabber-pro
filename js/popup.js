@@ -860,7 +860,9 @@ async function executeDownload(item, chosenVariant, mode, buttonEl, progressRefs
         }
         return;
       }
-    } else if (mode === "photo_only") {
+    }
+
+    if (mode === "photo_only") {
       setProgress(40, "Preparando imagem em alta definição...");
       if (item.type === "video") {
         const photoUrl = item.thumbnail || "";
@@ -2313,9 +2315,20 @@ if (isFullTabStudio) {
   document.body.classList.add("fulltab-mode");
 }
 
-chrome.tabs.query({ active: true, currentWindow: true }, async (tabs) => {
-  const activeTab = paramTabId ? { id: paramTabId, url: "" } : tabs && tabs[0];
-  if (!activeTab) return;
+async function initActiveTabAndScan() {
+  let activeTab = null;
+  if (paramTabId) {
+    activeTab = { id: paramTabId, url: "" };
+  } else {
+    const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
+    activeTab = tabs && tabs[0];
+    if (!activeTab) {
+      const fallbackTabs = await chrome.tabs.query({ active: true, lastFocusedWindow: true });
+      activeTab = fallbackTabs && fallbackTabs[0];
+    }
+  }
+
+  if (!activeTab || !activeTab.id) return;
   activeTabId = activeTab.id;
 
   try {
@@ -2330,10 +2343,21 @@ chrome.tabs.query({ active: true, currentWindow: true }, async (tabs) => {
 
   await runScanner(false);
 
+  // Se a página for pesada (ex: Behance/Instagram) e vier 0 itens, tenta o Deep Scan após 300ms
+  if (!allMedia || allMedia.length === 0) {
+    setTimeout(async () => {
+      if (!allMedia || allMedia.length === 0) {
+        await runScanner(false);
+      }
+    }, 350);
+  }
+
   if (isFullTabStudio) {
     openTrimmerStudio(null);
   }
-});
+}
+
+initActiveTabAndScan();
 
 // ---- Cortes Virais IA: abre o estúdio em aba própria com o link da aba atual ----
 document.getElementById("openAiStudioBtn")?.addEventListener("click", async () => {
