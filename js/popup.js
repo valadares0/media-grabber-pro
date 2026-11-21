@@ -207,10 +207,14 @@ async function getEngineToken() {
 }
 
 async function runLocalEngineDownload(payload, onProgress) {
+  const ctrl = new AbortController();
+  const t = setTimeout(() => ctrl.abort(), 1200);
   try {
-    const h = await fetch(`${ENGINE_BASE}/api/health`);
+    const h = await fetch(`${ENGINE_BASE}/api/health`, { signal: ctrl.signal });
+    clearTimeout(t);
     if (!h.ok) throw new Error("not ok");
   } catch (_) {
+    clearTimeout(t);
     if (onProgress) onProgress(2, "Iniciando motor de vídeo local...", 0, 0);
     await chrome.runtime.sendMessage({ action: "ENSURE_ENGINE" }).catch(() => {});
   }
@@ -370,17 +374,26 @@ async function resumeBgJobs() {
     box.appendChild(row);
 
     (async () => {
+      let failCount = 0;
       while (true) {
         let job = null;
         try {
-          const r = await fetch(`${ENGINE_BASE}/api/progress/${entry.jobId}`, { headers });
+          const c = new AbortController();
+          const to = setTimeout(() => c.abort(), 1500);
+          const r = await fetch(`${ENGINE_BASE}/api/progress/${entry.jobId}`, { headers, signal: c.signal });
+          clearTimeout(to);
           if (r.ok) job = (await r.json()).job;
         } catch (_) {}
         if (!job) {
-          status.textContent = "Tarefa não encontrada (motor reiniciado).";
-          row.classList.add("error");
-          await untrackBgJob(entry.jobId);
-          return;
+          failCount++;
+          if (failCount >= 3) {
+            status.textContent = "Tarefa pausada ou motor indisponível.";
+            row.classList.add("error");
+            await untrackBgJob(entry.jobId);
+            return;
+          }
+          await new Promise((res) => setTimeout(res, 1200));
+          continue;
         }
         fill.style.width = `${job.pct || 0}%`;
         pct.textContent = `${Math.round(job.pct || 0)}%`;
