@@ -158,6 +158,63 @@ body.fulltab-mode {
 .bg-job.done .bg-job-fill { background: #34d399; }
 .bg-job.error .bg-job-fill { background: #f87171; }
 
+/* Notificação e Atualização Direta na Extensão */
+.update-banner {
+  background: linear-gradient(90deg, #1e1b4b 0%, #312e81 100%);
+  border-bottom: 1px solid #6366f1;
+  padding: 8px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  animation: slideDown 0.25s ease-out;
+}
+.update-banner-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  flex: 1;
+}
+.update-banner-icon {
+  font-size: 15px;
+  flex-shrink: 0;
+}
+.update-banner-text {
+  font-size: 11.5px;
+  color: #e0e7ff;
+  line-height: 1.3;
+}
+.update-banner-text b {
+  color: #38bdf8;
+}
+.btn-update-now {
+  background: linear-gradient(135deg, #38bdf8, #6366f1);
+  color: #0f172a;
+  border: none;
+  font-weight: 700;
+  font-size: 11px;
+  padding: 5px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: transform 0.15s, opacity 0.15s;
+}
+.btn-update-now:hover {
+  opacity: 0.92;
+  transform: scale(1.02);
+}
+.btn-update-now:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
 .btn-icon {
   display: inline-flex;
   align-items: center;

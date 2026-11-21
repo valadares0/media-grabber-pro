@@ -358,7 +358,98 @@ async function resumeBgJobs() {
   }
 }
 
+// =========================================================================
+// SISTEMA DE ATUALIZAÇÃO AUTOMÁTICA EM 1 CLIQUE NA EXTENSÃO
+// =========================================================================
+const GITHUB_REPO = "valadares0/media-grabber-pro";
+const CURRENT_VERSION = chrome.runtime.getManifest()?.version || "5.0.0";
+
+function isNewerVersion(remote, local) {
+  const r = String(remote || "").replace(/^v/, "").split(".").map(Number);
+  const l = String(local || "").replace(/^v/, "").split(".").map(Number);
+  for (let i = 0; i < Math.max(r.length, l.length); i++) {
+    const rv = r[i] || 0;
+    const lv = l[i] || 0;
+    if (rv > lv) return true;
+    if (rv < lv) return false;
+  }
+  return false;
+}
+
+async function checkForExtensionUpdates() {
+  try {
+    const rawUrl = `https://raw.githubusercontent.com/${GITHUB_REPO}/main/manifest.json?_t=${Date.now()}`;
+    const resp = await fetch(rawUrl, { cache: "no-store" });
+    if (!resp.ok) return;
+    const remoteManifest = await resp.json();
+    const remoteVer = remoteManifest.version;
+
+    if (isNewerVersion(remoteVer, CURRENT_VERSION)) {
+      showUpdateBanner(remoteVer);
+    }
+  } catch (_) {}
+}
+
+function showUpdateBanner(newVersion) {
+  if (document.getElementById("updateBanner")) return;
+
+  const banner = document.createElement("div");
+  banner.id = "updateBanner";
+  banner.className = "update-banner";
+
+  banner.innerHTML = `
+    <div class="update-banner-info">
+      <span class="update-banner-icon">⚡</span>
+      <div class="update-banner-text">
+        Nova versão <b>v${newVersion}</b> disponível!
+      </div>
+    </div>
+    <button id="btnUpdateNow" class="btn-update-now">🔄 Atualizar Agora</button>
+  `;
+
+  const header = document.querySelector("header.header");
+  if (header && header.parentNode) {
+    header.parentNode.insertBefore(banner, header.nextSibling);
+  } else {
+    document.body.prepend(banner);
+  }
+
+  const updateBtn = banner.querySelector("#btnUpdateNow");
+  updateBtn.onclick = async () => {
+    updateBtn.disabled = true;
+    updateBtn.textContent = "⏳ Atualizando...";
+
+    const token = await getEngineToken();
+    const headers = { "Content-Type": "application/json", ...(token ? { "X-MG-Token": token } : {}) };
+
+    try {
+      const r = await fetch(`${ENGINE_BASE}/api/self-update`, {
+        method: "POST",
+        headers
+      });
+
+      if (r.ok) {
+        updateBtn.textContent = "✓ Atualizado! Reiniciando...";
+        setTimeout(() => {
+          chrome.runtime.reload();
+          window.close();
+        }, 800);
+      } else {
+        throw new Error("Falha no motor local");
+      }
+    } catch (_) {
+      // Se o motor local não estiver rodando no momento, instrui ou recarrega
+      updateBtn.textContent = "🔄 Recarregando...";
+      setTimeout(() => {
+        chrome.runtime.reload();
+        window.location.reload();
+      }, 500);
+    }
+  };
+}
+
 resumeBgJobs();
+checkForExtensionUpdates();
 
 // =========================================================================
 // AUDIO WAV ENCODER (Full or Trimmed [startSec, endSec])

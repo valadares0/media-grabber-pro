@@ -627,7 +627,7 @@ const server = http.createServer(async (req, res) => {
   if (pathname === "/api/health" && req.method === "GET") {
     return send(200, {
       ok: true,
-      version: "4.5",
+      version: "5.0.0",
       ytdlp: YTDLP_BIN,
       ffmpeg: FFMPEG_DIR
     });
@@ -636,6 +636,27 @@ const server = http.createServer(async (req, res) => {
   const reqToken = String(req.headers["x-mg-token"] || "").trim();
   if (reqToken !== ENGINE_TOKEN) {
     return send(401, { ok: false, error: "Unauthorized: missing or invalid X-MG-Token" });
+  }
+
+  if (pathname === "/api/self-update" && req.method === "POST") {
+    try {
+      const extDir = path.resolve(__dirname, "..");
+      const gitProc = spawn("git", ["pull", "origin", "main"], { cwd: extDir });
+      let output = "";
+      let errOutput = "";
+      gitProc.stdout.on("data", (d) => { output += d.toString(); });
+      gitProc.stderr.on("data", (d) => { errOutput += d.toString(); });
+      gitProc.on("close", (code) => {
+        if (code === 0) {
+          send(200, { ok: true, output: output.trim() || "Atualizado com sucesso" });
+        } else {
+          send(500, { ok: false, error: errOutput.trim() || `git pull falhou com código ${code}` });
+        }
+      });
+      return;
+    } catch (e) {
+      return send(500, { ok: false, error: e.message });
+    }
   }
 
   try {
